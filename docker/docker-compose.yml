@@ -1,0 +1,35 @@
+version: "3.4"
+
+services:
+  nginx:
+    image: wodby/nginx:$NGINX_TAG
+    container_name: "${PROJECT_NAME}_nginx"
+    environment:
+      NGINX_STATIC_OPEN_FILE_CACHE: "off"
+      NGINX_ERROR_LOG_LEVEL: debug
+      NGINX_SERVER_ROOT: /var/www/html/public
+    volumes:
+    - codebase:/var/www/html:cached
+    labels:
+    - "traefik.http.routers.${PROJECT_NAME}_nginx.rule=Host(`${PROJECT_BASE_URL}`)"
+
+  node:
+    image: wodby/node:$NODE_TAG
+    container_name: "${PROJECT_NAME}_node"
+    working_dir: /app
+    volumes:
+    - codebase:/app
+    command: sleep infinity
+
+volumes:
+  codebase:
+    name: '${PROJECT_NAME}_codebase'
+    driver_opts:
+      type: none
+      device: '../app'
+      o: bind
+
+networks:
+  default:
+    name: ${PROJECT_NAME}_default
+
