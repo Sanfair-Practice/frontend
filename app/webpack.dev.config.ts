@@ -1,8 +1,10 @@
-import { Configuration, HotModuleReplacementPlugin } from "webpack";
-import HtmlWebpackPlugin from "html-webpack-plugin";
-import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
+import {CleanWebpackPlugin} from "clean-webpack-plugin";
+import {Configuration} from "webpack";
 import ESLintPlugin from "eslint-webpack-plugin";
+import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
+import HtmlWebpackPlugin from "html-webpack-plugin";
 import path from "path";
+import DotenvWebpackPlugin from "dotenv-webpack";
 
 const config: Configuration = {
   mode: "development",
@@ -33,16 +35,19 @@ const config: Configuration = {
     extensions: [".tsx", ".ts", ".js"],
   },
   plugins: [
+    new DotenvWebpackPlugin({
+      safe: true,
+    }),
     new HtmlWebpackPlugin({
       template: "src/index.html",
     }),
-    new HotModuleReplacementPlugin(),
     new ForkTsCheckerWebpackPlugin({
       async: false,
     }),
     new ESLintPlugin({
       extensions: ["js", "jsx", "ts", "tsx"],
     }),
+    new CleanWebpackPlugin(),
   ],
   devtool: "inline-source-map",
 };

@@ -1,13 +1,15 @@
+import {App} from "./Components/App";
 import React from "react";
 import ReactDOM from "react-dom";
-
-const App = () => (
-  <h1>My React and TypeScript App!! {new Date().toLocaleDateString()}</h1>
-);
+import {ServiceContainerProvider, UserProvider} from "./Contexts";
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById("root")
+    <React.StrictMode>
+        <ServiceContainerProvider>
+            <UserProvider>
+                <App/>
+            </UserProvider>
+        </ServiceContainerProvider>
+    </React.StrictMode>,
+    document.getElementById("root")
 );
