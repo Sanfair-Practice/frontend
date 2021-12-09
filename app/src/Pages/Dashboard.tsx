@@ -33,10 +33,11 @@ const Training: FC<{ training: ITrainingRecord }> = ({training}) => {
     )
 }
 
-const Trainings: FC<{update: string}> = ({update}) => {
+const Trainings: FC<{ update: string }> = ({update}) => {
     const api = useServiceContainer().resolve<Backend.Api>("backendApi");
     const {user} = useUser();
-    const callback = async (id: number, update:string) => await api.getTrainings(id);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const callback = async (id: number, update: string) => await api.getTrainings(id);
     const trainings = useAsync(callback, [(user as ILoggedUser).id, update]);
 
     let content;
@@ -79,7 +80,7 @@ const style = {
     p: 4,
 };
 
-const Menu: FC<{setUpdate: React.Dispatch<string>}> = ({setUpdate}) => {
+const Menu: FC<{ setUpdate: React.Dispatch<string> }> = ({setUpdate}) => {
     const [form, setForm] = React.useState<React.ReactElement>();
     const clear = () => setForm(undefined);
     const useSectionForm = () => setForm(React.createElement(SectionForm, {
