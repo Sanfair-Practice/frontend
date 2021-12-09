@@ -1,5 +1,12 @@
 import axios, {AxiosInstance} from "axios";
-import {ILoginProfile, IRecordLoggedUser, IRecordUser, IRegistrationProfile} from "./types";
+import {
+    IChapterRecord,
+    ILoginProfile,
+    IRecordLoggedUser,
+    IRecordUser,
+    IRegistrationProfile, ISectionRecord,
+    ITrainingRecord
+} from "./types";
 
 export class ValidationError extends Error {
     constructor(message: string, public readonly errors: unknown) {
@@ -16,10 +23,33 @@ export class Api {
         this.httpClient = axios.create({
             baseURL: host,
             timeout: 1000,
-            headers: {
+            headers:  {
                 "Accept": "application/json"
             }
         });
+    }
+
+    public async createTraining(user: number, sections: Array<string>): Promise<ITrainingRecord> {
+        const response = await this.httpClient.post(`/api/user/${user}/training`, {sections});
+        return response.data.data;
+    }
+
+    public async getChapters(): Promise<Array<IChapterRecord>>
+    {
+        const response = await this.httpClient.get("/api/chapter");
+        return response.data.data;
+    }
+
+    public async getSections(): Promise<Array<ISectionRecord>>
+    {
+        const response = await this.httpClient.get("/api/section");
+        return response.data.data;
+    }
+
+    public async getTrainings(user: number): Promise<Array<ITrainingRecord>>
+    {
+        const response = await this.httpClient.get(`/api/user/${user}/training`);
+        return response.data.data;
     }
 
     public async register(profile: IRegistrationProfile): Promise<IRecordLoggedUser> {
@@ -34,12 +64,7 @@ export class Api {
                 password_confirmation: profile.password_confirmation,
                 device: this.device
             });
-            const body = response.data;
-
-            const record: IRecordLoggedUser = body.data;
-
-            this.handleLogin(record.token);
-            return record;
+            return response.data.data;
 
         } catch (reason) {
             if (axios.isAxiosError(reason) && reason.response) {
@@ -55,13 +80,7 @@ export class Api {
             password: profile.password,
             device: this.device
         });
-
-        const body = response.data;
-
-        const record: IRecordLoggedUser = body.data;
-
-        this.handleLogin(record.token);
-        return record;
+        return response.data.data;
     }
 
     public async status(): Promise<IRecordLoggedUser> {
@@ -75,12 +94,12 @@ export class Api {
     }
 
 
-    public handleLogin(token: string|null): void {
+    public updateAuthorization(token: string|undefined): void {
         if (token) {
-            this.httpClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            this.httpClient.defaults.headers.common.Authorization = `Bearer ${token}`;
         }
         else {
-            delete this.httpClient.defaults.headers.common["Authorization"];
+            delete this.httpClient.defaults.headers.common.Authorization;
         }
     }
 }

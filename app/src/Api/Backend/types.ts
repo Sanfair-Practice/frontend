@@ -24,3 +24,23 @@ export interface IRegistrationProfile {
     readonly password: string,
     readonly password_confirmation: string,
 }
+
+export interface ITrainingRecord {
+    readonly id: number,
+    readonly errors: number,
+    readonly quantity: number,
+    readonly time: number,
+    readonly type: string,
+    readonly status: string,
+    readonly created: string,
+}
+
+export interface IChapterRecord {
+    readonly id: number,
+    readonly name: string,
+    readonly sections: Array<ISectionRecord>
+}
+export interface ISectionRecord {
+    readonly id: number,
+    readonly name: string,
+}
