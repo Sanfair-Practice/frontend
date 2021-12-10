@@ -9,14 +9,15 @@ import {
     CheckboxProps,
     FormControl,
     FormControlLabel,
-    FormGroup, FormHelperText,
+    FormGroup,
+    FormHelperText,
     Grid
 } from "@mui/material";
 import {useFormik} from "formik";
 import * as Yup from "yup";
 import {ILoggedUser} from "../Models";
 
-const Checkbox: FC<{ label: string }&CheckboxProps> = ({label, ...props}) => {
+const Checkbox: FC<{ label: string } & CheckboxProps> = ({label, ...props}) => {
     return <FormControlLabel control={<MuiCheckbox {...props}/>} label={label}/>
 }
 
@@ -31,7 +32,7 @@ interface IForm extends ISubmit {
 const Form: FC<IForm> = ({sections, onSubmit}) => {
     const api = useServiceContainer().resolve<Backend.Api>("backendApi");
     const {user} = useUser();
-    const formik = useFormik<{sections: Array<string>}>({
+    const formik = useFormik<{ sections: Array<string> }>({
         initialValues: {
             sections: [],
         },
@@ -55,16 +56,16 @@ const Form: FC<IForm> = ({sections, onSubmit}) => {
     ));
     return (
         <form onSubmit={formik.handleSubmit}>
-            <FormGroup>
-                <FormControl error={Boolean(formik.errors.sections)}>
-                    <Box sx={{overflow:"auto", maxHeight: "250px"}}>
-                        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+            <FormControl error={Boolean(formik.errors.sections)}>
+                <FormGroup>
+                    <Box sx={{overflow: "auto", maxHeight: "250px"}}>
+                        <Grid container rowSpacing={1} columnSpacing={{xs: 1, sm: 2, md: 3}}>
                             {checkboxes}
                         </Grid>
                     </Box>
                     <FormHelperText>{formik.errors.sections}</FormHelperText>
-                </FormControl>
-            </FormGroup>
+                </FormGroup>
+            </FormControl>
             <Box sx={{py: 2}}>
                 <Button color="primary" fullWidth size="large" type="submit" variant="contained">
                     Submit
