@@ -10,7 +10,7 @@ import {
     FormControl,
     FormControlLabel,
     FormGroup,
-    FormHelperText,
+    FormHelperText, FormLabel,
     Grid
 } from "@mui/material";
 import {useFormik} from "formik";
@@ -57,6 +57,7 @@ const Form: FC<IForm> = ({sections, onSubmit}) => {
     return (
         <form onSubmit={formik.handleSubmit}>
             <FormControl error={Boolean(formik.touched.sections && formik.errors.sections)}>
+                <FormLabel component="legend">Sections</FormLabel>
                 <FormGroup>
                     <Box sx={{overflow: "auto", maxHeight: "250px"}}>
                         <Grid container rowSpacing={1} columnSpacing={{xs: 1, sm: 2, md: 3}}>
