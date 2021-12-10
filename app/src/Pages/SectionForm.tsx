@@ -56,7 +56,7 @@ const Form: FC<IForm> = ({sections, onSubmit}) => {
     ));
     return (
         <form onSubmit={formik.handleSubmit}>
-            <FormControl error={Boolean(formik.errors.sections)}>
+            <FormControl error={Boolean(formik.touched.sections && formik.errors.sections)}>
                 <FormGroup>
                     <Box sx={{overflow: "auto", maxHeight: "250px"}}>
                         <Grid container rowSpacing={1} columnSpacing={{xs: 1, sm: 2, md: 3}}>
