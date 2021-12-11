@@ -36,7 +36,7 @@ export class User implements IUser {
     ) {
     }
 
-    public static fromRecord(record: Backend.IRecordUser): IUser {
+    public static fromRecord(record: Backend.IUserRecord): IUser {
         return new User(record.id, record.first_name, record.last_name, record.phone, record.email);
     }
 
@@ -55,7 +55,7 @@ export class LoggedUser extends User implements ILoggedUser {
         super(id, firstName, lastName, phone, email);
     }
 
-    public static fromRecord(record: Backend.IRecordLoggedUser): ILoggedUser {
+    public static fromRecord(record: Backend.ILoggedUserRecord): ILoggedUser {
         return new LoggedUser(record.id, record.first_name, record.last_name, record.phone, record.email, record.token);
     }
 

@@ -49,13 +49,22 @@ export interface ISectionRecord {
     readonly name: string,
 }
 
+export enum VariantStatus {
+    CREATED = "created",
+    STARTED = "started",
+    PASSED = "finished",
+    FAILED = "failed",
+    EXPIRED = "expired",
+}
+
 export interface IVariantRecord {
     readonly id: number,
     readonly time: number,
     readonly end: string|null,
     readonly errors: number,
+    readonly test_id: number,
     readonly input: Array<IVariantInput>,
-    readonly status: string,
+    readonly status: VariantStatus,
     readonly questions?: Array<IQuestionRecord>
 }
 

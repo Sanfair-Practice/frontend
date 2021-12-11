@@ -3,15 +3,12 @@ import {useServiceContainer, useUser} from "../Contexts";
 import {Backend} from "../Api";
 import {useAsync} from "react-async-hook";
 import {ILoggedUser} from "../Models";
-import {useParams} from "react-router-dom";
-import {IChapterRecord, ISectionRecord, ITrainingRecord, IVariantRecord} from "../Api/Backend";
-import {Box, Card, CardContent, Chip, Container, Grid, Typography} from "@mui/material";
+import {useNavigate, useParams} from "react-router-dom";
+import {IChapterRecord, ISectionRecord, ITrainingRecord, IVariantRecord, VariantStatus} from "../Api/Backend";
+import {Box, Button, Card, CardActions, CardContent, Chip, Container, Grid, Typography} from "@mui/material";
 import Moment from "react-moment";
 import moment from "moment";
-
-type TrainingParams = {
-    id: string;
-}
+import {Router} from "../Helpers";
 
 const Section: FC<{ section: ISectionRecord }> = ({section}) => {
     return <Chip label={section.name} size="small"/>
@@ -19,6 +16,32 @@ const Section: FC<{ section: ISectionRecord }> = ({section}) => {
 
 const Chapter: FC<{ chapter: IChapterRecord }> = ({chapter}) => {
     return <Chip label={chapter.name} size="small"/>
+}
+
+const VariantActions: FC<{variant: IVariantRecord}> = ({variant}) => {
+    const navigate = useNavigate();
+    const api = useServiceContainer().resolve<Backend.Api>("backendApi");
+    const {user} = useUser();
+    const handleStart = async () => {
+        const record = await api.startVariant((user as ILoggedUser).id, variant.test_id, variant.id);
+        navigate(Router.linkVariant(record.test_id, record.id));
+    }
+    const handleView = () => {
+        navigate(Router.linkVariant(variant.test_id, variant.id));
+    }
+
+    switch (variant.status) {
+        case VariantStatus.CREATED:
+            return <Button onClick={handleStart} size="small">Start</Button>;
+        case VariantStatus.STARTED:
+            return <Button onClick={handleView} size="small">Continue</Button>;
+        case VariantStatus.PASSED:
+        case VariantStatus.FAILED:
+        case VariantStatus.EXPIRED:
+            return <Button onClick={handleView} size="small">View</Button>;
+        default:
+            return <></>;
+    }
 }
 
 const Variant: FC<{variant: IVariantRecord}> = ({variant}) => {
@@ -30,11 +53,13 @@ const Variant: FC<{variant: IVariantRecord}> = ({variant}) => {
                 <Line label="Status">{variant.status}</Line>
                 <Line label="Time">{time.humanize()}</Line>
                 {variant.end && (
-                    <Line label="End"><Moment format="YYYY/MM/DD HH:mm:ss" unix date={variant.end}/></Line>
+                    <Line label="End"><Moment format="YYYY/MM/DD HH:mm:ss" date={variant.end}/></Line>
                 )}
                 <Line label="Allowed errors">{(variant.errors === -1) ? "Unlimited" : variant.errors}</Line>
-
             </CardContent>
+            <CardActions>
+                <VariantActions variant={variant}/>
+            </CardActions>
         </Card>
     )
 }
@@ -131,7 +156,7 @@ const Component: FC<{ training: ITrainingRecord }> = ({training}) => {
 }
 
 export const Training: FC = () => {
-    const {id} = useParams<TrainingParams>()
+    const {training: id} = useParams<"training">()
     const api = useServiceContainer().resolve<Backend.Api>("backendApi");
     const {user} = useUser();
     const callback = async (user: number, training: string | undefined) => {

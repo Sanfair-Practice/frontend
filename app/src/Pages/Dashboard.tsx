@@ -24,11 +24,12 @@ import {SectionForm} from "./SectionForm";
 import {ChapterForm} from "./ChapterForm";
 import {CustomForm} from "./CustomForm";
 import {useNavigate} from "react-router-dom";
+import {Router} from "../Helpers"
 
 const Training: FC<{ training: ITrainingRecord }> = ({training}) => {
     const navigate = useNavigate();
     return (
-        <TableRow hover sx={{cursor: "pointer"}} onClick={() => navigate(`/training/${training.id}`)}>
+        <TableRow hover sx={{cursor: "pointer"}} onClick={() => navigate(Router.linkTraining(training.id))}>
             <TableCell>{training.id}</TableCell>
             <TableCell>{training.type}</TableCell>
             <TableCell>{training.status}</TableCell>

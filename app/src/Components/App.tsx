@@ -10,6 +10,9 @@ import {CssBaseline} from "@mui/material";
 import {Navigation} from "./Navigation";
 import {useServiceContainer, useUser} from "../Contexts";
 import {Backend} from "../Api";
+import {Router as AppRouter} from "../Helpers";
+import {Training} from "../Pages/Training";
+import {Variant} from "../Pages/Variant";
 
 export const App: FC = () => {
     const {user} = useUser();
@@ -22,13 +25,15 @@ export const App: FC = () => {
                 <Navigation/>
                 <Routes>
                     <Route element={<Authenticated/>}>
-                        <Route path='/' element={<Home/>}/>
+                        <Route path={AppRouter.routes.HOME} element={<Home/>}/>
+                        <Route path={AppRouter.routes.TRAINING} element={<Training/>}/>
+                        <Route path={AppRouter.routes.VARIANT} element={<Variant/>}/>
                     </Route>
                     <Route element={<Guest/>}>
-                        <Route path='/sign-in' element={<SignIn/>}/>
-                        <Route path='/sign-up' element={<SignUp/>}/>
+                        <Route path={AppRouter.routes.SIGN_IN} element={<SignIn/>}/>
+                        <Route path={AppRouter.routes.SIGN_UP} element={<SignUp/>}/>
                     </Route>
-                    <Route path="*" element={<NotFound/>}/>
+                    <Route path={AppRouter.routes.NOT_FOUND} element={<NotFound/>}/>
                 </Routes>
             </CssBaseline>
         </Router>

@@ -5,7 +5,7 @@ import {
     ILoggedUserRecord,
     IUserRecord,
     IRegistrationProfile, ISectionRecord,
-    ITrainingRecord
+    ITrainingRecord, IVariantRecord
 } from "./types";
 
 export class ValidationError extends Error {
@@ -28,6 +28,16 @@ export class Api {
                 "Accept": "application/json"
             }
         });
+    }
+
+    public async getVariant(user:number, training:number, variant:number): Promise<IVariantRecord> {
+        const response = await this.httpClient.get(`/api/user/${user}/training/${training}/variant/${variant}`);
+        return response.data.data;
+    }
+
+    public async startVariant(user:number, training:number, variant:number): Promise<IVariantRecord> {
+        const response = await this.httpClient.patch(`/api/user/${user}/training/${training}/variant/${variant}`);
+        return response.data.data;
     }
 
     public async createTrainingForSections(user: number, sections: Array<string>): Promise<ITrainingRecord> {
