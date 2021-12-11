@@ -14,6 +14,14 @@ export class ValidationError extends Error {
     }
 }
 
+interface AnswerQuestionConfig {
+    user: number,
+    training: number,
+    variant: number,
+    question: number,
+    answer: string
+}
+
 export class Api {
     private readonly httpClient: AxiosInstance;
     private readonly device: string;
@@ -28,6 +36,15 @@ export class Api {
                 "Accept": "application/json"
             }
         });
+    }
+
+    public async answerQuestion(config:AnswerQuestionConfig): Promise<IVariantRecord> {
+        const {user, training, variant, question, answer} = config;
+        const url = `/api/user/${user}/training/${training}/variant/${variant}/question/${question}/answer`;
+        const response = await this.httpClient.post(url, {
+            answer
+        });
+        return response.data.data;
     }
 
     public async getVariant(user:number, training:number, variant:number): Promise<IVariantRecord> {

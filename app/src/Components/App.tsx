@@ -6,7 +6,7 @@ import React, {FC} from "react";
 import {Route, Routes} from "react-router";
 import {BrowserRouter as Router} from "react-router-dom";
 import {Authenticated, Guest} from "./Auth"
-import {CssBaseline} from "@mui/material";
+import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 import {Navigation} from "./Navigation";
 import {useServiceContainer, useUser} from "../Contexts";
 import {Backend} from "../Api";
@@ -14,14 +14,24 @@ import {Router as AppRouter} from "../Helpers";
 import {Training} from "../Pages/Training";
 import {Variant} from "../Pages/Variant";
 
+
+const theme = createTheme({
+    palette: {
+        background: {
+            default: "#e8e8e8"
+        }
+    },
+});
+
 export const App: FC = () => {
     const {user} = useUser();
     const api = useServiceContainer().resolve<Backend.Api>("backendApi");
     api.updateAuthorization(user?.token);
 
     return (
-        <Router>
-            <CssBaseline>
+        <ThemeProvider theme={theme}>
+            <CssBaseline/>
+            <Router>
                 <Navigation/>
                 <Routes>
                     <Route element={<Authenticated/>}>
@@ -35,7 +45,8 @@ export const App: FC = () => {
                     </Route>
                     <Route path={AppRouter.routes.NOT_FOUND} element={<NotFound/>}/>
                 </Routes>
-            </CssBaseline>
-        </Router>
+            </Router>
+        </ThemeProvider>
+
     )
 };

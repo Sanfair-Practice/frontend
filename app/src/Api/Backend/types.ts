@@ -63,7 +63,7 @@ export interface IVariantRecord {
     readonly end: string|null,
     readonly errors: number,
     readonly test_id: number,
-    readonly input: Array<IVariantInput>,
+    readonly input: Record<string, IVariantInput>,
     readonly status: VariantStatus,
     readonly questions?: Array<IQuestionRecord>
 }
