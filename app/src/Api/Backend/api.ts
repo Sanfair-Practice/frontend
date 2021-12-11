@@ -22,15 +22,21 @@ export class Api {
         this.device = device;
         this.httpClient = axios.create({
             baseURL: host,
-            timeout: 1000,
+            // TODO optimize create test from chapter.
+            timeout: 10000,
             headers:  {
                 "Accept": "application/json"
             }
         });
     }
 
-    public async createTraining(user: number, sections: Array<string>): Promise<ITrainingRecord> {
+    public async createTrainingForSections(user: number, sections: Array<string>): Promise<ITrainingRecord> {
         const response = await this.httpClient.post(`/api/user/${user}/training`, {sections});
+        return response.data.data;
+    }
+
+    public async createTrainingForChapters(user: number, chapters: Array<string>): Promise<ITrainingRecord> {
+        const response = await this.httpClient.post(`/api/user/${user}/training`, {chapters});
         return response.data.data;
     }
 

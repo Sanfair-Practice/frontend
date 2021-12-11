@@ -24,40 +24,40 @@ interface ISubmit {
 }
 
 interface IForm extends ISubmit {
-    sections: Array<Backend.ISectionRecord>,
+    chapters: Array<Backend.IChapterRecord>,
 }
 
-const Form: FC<IForm> = ({sections, onSubmit}) => {
+const Form: FC<IForm> = ({chapters, onSubmit}) => {
     const api = useServiceContainer().resolve<Backend.Api>("backendApi");
     const {user} = useUser();
-    const formik = useFormik<{ section: string }>({
+    const formik = useFormik<{ chapter: string }>({
         initialValues: {
-            section: "",
+            chapter: "",
         },
         validationSchema: Yup.object({
-            section: Yup.string().required(),
+            chapter: Yup.string().required(),
         }),
         onSubmit: async (values) => {
-            const record = await api.createTrainingForSections((user as ILoggedUser).id, [values.section]);
+            const record = await api.createTrainingForChapters((user as ILoggedUser).id, [values.chapter]);
             onSubmit(record);
         }
     });
-    const checkboxes = sections.map((section) => (
-        <Grid key={section.id} item xs={3}>
-            <Radio label={section.name} value={section.id} />
+    const checkboxes = chapters.map((chapter) => (
+        <Grid key={chapter.id} item xs={3}>
+            <Radio label={chapter.name} value={chapter.id} />
         </Grid>
     ));
     return (
         <form onSubmit={formik.handleSubmit}>
-            <FormControl error={Boolean(formik.touched.section && formik.errors.section)}>
-                <FormLabel component="legend">Section</FormLabel>
-                <RadioGroup name="section" onChange={formik.handleChange}>
+            <FormControl error={Boolean(formik.touched.chapter && formik.errors.chapter)}>
+                <FormLabel component="legend">Chapter</FormLabel>
+                <RadioGroup name="chapter" onChange={formik.handleChange}>
                     <Box sx={{overflow: "auto", maxHeight: "250px"}}>
                         <Grid container rowSpacing={1} columnSpacing={{xs: 1, sm: 2, md: 3}}>
                             {checkboxes}
                         </Grid>
                     </Box>
-                    <FormHelperText>{formik.errors.section}</FormHelperText>
+                    <FormHelperText>{formik.errors.chapter}</FormHelperText>
                 </RadioGroup>
             </FormControl>
             <Box sx={{py: 2}}>
@@ -69,19 +69,19 @@ const Form: FC<IForm> = ({sections, onSubmit}) => {
     )
 }
 
-export const SectionForm: FC<ISubmit> = ({onSubmit}) => {
+export const ChapterForm: FC<ISubmit> = ({onSubmit}) => {
     const api = useServiceContainer().resolve<Backend.Api>("backendApi");
-    const callback = async () => await api.getSections();
-    const sections = useAsync(callback, []);
-    if (sections.loading) {
+    const callback = async () => await api.getChapters();
+    const chapters = useAsync(callback, []);
+    if (chapters.loading) {
         return <>Loading ...</>;
     }
-    if (sections.error) {
-        return <>Error: {sections.error}</>
+    if (chapters.error) {
+        return <>Error: {chapters.error}</>
     }
-    if (!sections.result || sections.result.length === 0) {
-        return <>No sections</>
+    if (!chapters.result || chapters.result.length === 0) {
+        return <>No chapters</>
     }
 
-    return <Form sections={sections.result} onSubmit={onSubmit}/>
+    return <Form chapters={chapters.result} onSubmit={onSubmit}/>
 }

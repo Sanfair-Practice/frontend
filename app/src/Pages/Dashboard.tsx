@@ -21,6 +21,7 @@ import {Backend} from "../Api";
 import {ILoggedUser} from "../Models";
 import {ITrainingRecord} from "../Api/Backend";
 import {SectionForm} from "./SectionForm";
+import {ChapterForm} from "./ChapterForm";
 
 const Training: FC<{ training: ITrainingRecord }> = ({training}) => {
     return (
@@ -89,6 +90,12 @@ const Menu: FC<{ setUpdate: React.Dispatch<string> }> = ({setUpdate}) => {
             setUpdate(String(record.id));
         }
     }));
+    const useChapterForm = () => setForm(React.createElement(ChapterForm, {
+        onSubmit: (record) => {
+            clear()
+            setUpdate(String(record.id));
+        }
+    }));
 
     return (
         <>
@@ -96,7 +103,7 @@ const Menu: FC<{ setUpdate: React.Dispatch<string> }> = ({setUpdate}) => {
                 <ListItem button onClick={useSectionForm}>
                     <ListItemText primary="Start section"/>
                 </ListItem>
-                <ListItem button>
+                <ListItem button onClick={useChapterForm}>
                     <ListItemText primary="Start chapter"/>
                 </ListItem>
                 <ListItem button>
@@ -105,8 +112,7 @@ const Menu: FC<{ setUpdate: React.Dispatch<string> }> = ({setUpdate}) => {
             </List>
             <Modal open={form !== undefined} onClose={clear}>
                 <Box sx={{position: "absolute", ...style}}>
-                    <div>Text in a modal</div>
-                    <div>{form}</div>
+                    {form}
                 </Box>
             </Modal>
         </>
