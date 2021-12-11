@@ -2,8 +2,8 @@ import axios, {AxiosInstance} from "axios";
 import {
     IChapterRecord,
     ILoginProfile,
-    IRecordLoggedUser,
-    IRecordUser,
+    ILoggedUserRecord,
+    IUserRecord,
     IRegistrationProfile, ISectionRecord,
     ITrainingRecord
 } from "./types";
@@ -58,7 +58,13 @@ export class Api {
         return response.data.data;
     }
 
-    public async register(profile: IRegistrationProfile): Promise<IRecordLoggedUser> {
+    public async getTraining(user: number, training: number): Promise<ITrainingRecord>
+    {
+        const response = await this.httpClient.get(`/api/user/${user}/training/${training}`);
+        return response.data.data;
+    }
+
+    public async register(profile: IRegistrationProfile): Promise<ILoggedUserRecord> {
         try {
             const response = await this.httpClient.post("/api/register", {
                 first_name: profile.first_name,
@@ -80,7 +86,7 @@ export class Api {
         }
     }
 
-    public async login(profile: ILoginProfile): Promise<IRecordLoggedUser> {
+    public async login(profile: ILoginProfile): Promise<ILoggedUserRecord> {
         const response = await this.httpClient.post("/api/login", {
             email: profile.email,
             password: profile.password,
@@ -89,14 +95,14 @@ export class Api {
         return response.data.data;
     }
 
-    public async status(): Promise<IRecordLoggedUser> {
+    public async status(): Promise<ILoggedUserRecord> {
         const response = await this.httpClient.get("/api/login");
         return response.data.data;
     }
 
-    public async getUser(id: number): Promise<IRecordUser> {
+    public async getUser(id: number): Promise<IUserRecord> {
         const response = await this.httpClient.get(`/api/user/${id}`);
-        return response.data.data as IRecordUser;
+        return response.data.data as IUserRecord;
     }
 
 

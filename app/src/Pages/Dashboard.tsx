@@ -22,14 +22,17 @@ import {ILoggedUser} from "../Models";
 import {ITrainingRecord} from "../Api/Backend";
 import {SectionForm} from "./SectionForm";
 import {ChapterForm} from "./ChapterForm";
+import {CustomForm} from "./CustomForm";
+import {useNavigate} from "react-router-dom";
 
 const Training: FC<{ training: ITrainingRecord }> = ({training}) => {
+    const navigate = useNavigate();
     return (
-        <TableRow>
+        <TableRow hover sx={{cursor: "pointer"}} onClick={() => navigate(`/training/${training.id}`)}>
             <TableCell>{training.id}</TableCell>
             <TableCell>{training.type}</TableCell>
             <TableCell>{training.status}</TableCell>
-            <TableCell><Moment format="YYYY/MM/DD" date={training.created}/></TableCell>
+            <TableCell><Moment format="YYYY/MM/DD HH:mm" date={training.created}/></TableCell>
         </TableRow>
     )
 }
@@ -84,18 +87,13 @@ const style = {
 const Menu: FC<{ setUpdate: React.Dispatch<string> }> = ({setUpdate}) => {
     const [form, setForm] = React.useState<React.ReactElement>();
     const clear = () => setForm(undefined);
-    const useSectionForm = () => setForm(React.createElement(SectionForm, {
-        onSubmit: (record) => {
-            clear()
-            setUpdate(String(record.id));
-        }
-    }));
-    const useChapterForm = () => setForm(React.createElement(ChapterForm, {
-        onSubmit: (record) => {
-            clear()
-            setUpdate(String(record.id));
-        }
-    }));
+    const onSubmit = (record: ITrainingRecord) => {
+        clear()
+        setUpdate(String(record.id));
+    }
+    const useSectionForm = () => setForm(React.createElement(SectionForm, {onSubmit}));
+    const useChapterForm = () => setForm(React.createElement(ChapterForm, {onSubmit}));
+    const useCustomForm = () => setForm(React.createElement(CustomForm, {onSubmit}));
 
     return (
         <>
@@ -106,7 +104,7 @@ const Menu: FC<{ setUpdate: React.Dispatch<string> }> = ({setUpdate}) => {
                 <ListItem button onClick={useChapterForm}>
                     <ListItemText primary="Start chapter"/>
                 </ListItem>
-                <ListItem button>
+                <ListItem button onClick={useCustomForm}>
                     <ListItemText primary="Select configuration"/>
                 </ListItem>
             </List>

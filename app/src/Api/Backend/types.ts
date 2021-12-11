@@ -1,4 +1,4 @@
-export interface IRecordUser {
+export interface IUserRecord {
     readonly id: number,
     readonly first_name: string,
     readonly last_name: string,
@@ -6,7 +6,7 @@ export interface IRecordUser {
     readonly email: string
 }
 
-export interface IRecordLoggedUser extends IRecordUser {
+export interface ILoggedUserRecord extends IUserRecord {
     readonly token: string
 }
 
@@ -33,14 +33,42 @@ export interface ITrainingRecord {
     readonly type: string,
     readonly status: string,
     readonly created: string,
+    readonly sections?: Array<ISectionRecord>,
+    readonly chapters?: Array<IChapterRecord>,
+    readonly variants?: Array<IVariantRecord>,
+    readonly user?: Array<IUserRecord>,
 }
 
 export interface IChapterRecord {
     readonly id: number,
     readonly name: string,
-    readonly sections: Array<ISectionRecord>
+    readonly sections?: Array<ISectionRecord>
 }
 export interface ISectionRecord {
     readonly id: number,
     readonly name: string,
+}
+
+export interface IVariantRecord {
+    readonly id: number,
+    readonly time: number,
+    readonly end: string|null,
+    readonly errors: number,
+    readonly input: Array<IVariantInput>,
+    readonly status: string,
+    readonly questions?: Array<IQuestionRecord>
+}
+
+export interface IVariantInput {
+    readonly submitted: string,
+    readonly correct: string,
+    readonly value: string,
+}
+
+export interface IQuestionRecord {
+    readonly id: number,
+    readonly text: string,
+    readonly rules: string,
+    readonly explanation: string,
+    readonly choices: Record<string, string>
 }
