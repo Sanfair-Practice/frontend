@@ -22,6 +22,7 @@ import {NavigateNext} from "@mui/icons-material"
 import Moment from "react-moment";
 import moment from "moment";
 import {Router} from "../Helpers";
+import {Countdown} from "../Components/Countdown";
 
 const Section: FC<{ section: ISectionRecord }> = ({section}) => {
     return <Chip label={section.name} size="small"/>
@@ -64,8 +65,8 @@ const Variant: FC<{ variant: IVariantRecord }> = ({variant}) => {
             <CardHeader title={`Variant #${variant.id}`} subheader={variant.status}/>
             <CardContent>
                 <Line label="Time">{time.humanize()}</Line>
-                {variant.end && (
-                    <Line label="End"><Moment format="YYYY/MM/DD HH:mm:ss" date={variant.end}/></Line>
+                {variant.end && variant.status === VariantStatus.STARTED && (
+                    <Line label="Time left"><Countdown format={"hh:mm:ss"} durationFromNow date={variant.end} interval={1000}/></Line>
                 )}
                 <Line label="Allowed errors">{(variant.errors === -1) ? "Unlimited" : variant.errors}</Line>
             </CardContent>
