@@ -25,7 +25,8 @@ import {
     ListItemText,
     Paper,
     Radio,
-    RadioGroup, Stack,
+    RadioGroup,
+    Stack,
     Typography
 } from "@mui/material";
 import {Check, Clear, NavigateNext} from "@mui/icons-material"
@@ -36,7 +37,13 @@ import {Countdown} from "../Components/Countdown";
 
 type Color = "primary" | "success" | "error" | "default";
 
-const Choices: FC<{ question: IQuestionRecord, input: IVariantInput }> = ({question, input}) => {
+interface ChoicesProps {
+    question: IQuestionRecord,
+    input: IVariantInput
+    onContinue: ContinueCallback
+}
+
+const Choices: FC<ChoicesProps> = ({question, input, onContinue}) => {
     const choices = Object.entries(question.choices).map(([key, value], index) => {
         let icon = <></>;
         let color = "text.main";
@@ -62,6 +69,7 @@ const Choices: FC<{ question: IQuestionRecord, input: IVariantInput }> = ({quest
             <List>
                 {choices}
             </List>
+            <Button fullWidth variant="contained" onClick={onContinue}>Continue</Button>
         </Box>
     );
 }
@@ -108,10 +116,11 @@ interface QuestionProps {
     question: IQuestionRecord,
     input?: IVariantInput,
     onAnswer: AnswerCallback
+    onContinue: ContinueCallback
 }
 
-const Question: FC<QuestionProps> = ({question, input, onAnswer}) => {
-    const choices = input ? <Choices question={question} input={input}/> :
+const Question: FC<QuestionProps> = ({question, input, onAnswer, onContinue}) => {
+    const choices = input ? <Choices question={question} input={input} onContinue={onContinue}/> :
         <FormChoices question={question} onAnswer={onAnswer}/>;
     return (
         <Card>
@@ -130,14 +139,16 @@ const Timer: FC<{variant: IVariantRecord}> = ({variant}) => {
     }
 
     return (
-        <Box component={Paper} p={2}>
-            <Stack>
-                <Typography mx="auto" variant="h4">Time left</Typography>
-                <Typography mx="auto" variant="h5">
-                    <Countdown format={"hh:mm:ss"} durationFromNow date={variant.end} interval={1000}/>
-                </Typography>
-            </Stack>
-        </Box>
+        <Grid item xs={2}>
+            <Box component={Paper} p={2}>
+                <Stack>
+                    <Typography mx="auto" variant="h4">Time left</Typography>
+                    <Typography mx="auto" variant="h5">
+                        <Countdown format={"hh:mm:ss"} durationFromNow date={variant.end} interval={1000}/>
+                    </Typography>
+                </Stack>
+            </Box>
+        </Grid>
     )
 }
 const EditVariant: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = ({variant, onAnswer}) => {
@@ -162,6 +173,21 @@ const EditVariant: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = (
     const handleNext = () => setPage((page) => {
         return page < max ? page + 1 : max;
     });
+    const handleContinue = () => {
+        const next = variant.questions?.find(questioned)
+        if (next) {
+            setActive(next);
+            return;
+        }
+        const index = variant.questions?.findIndex((question) => question.id === activeQuestion?.id);
+        console.log(index);
+        if (index === undefined) {
+            return;
+        }
+
+        setActive(variant.questions?.[index + 1] ?? variant.questions?.[0]);
+
+    }
 
     const buttons = variant.questions?.map((question, index) => {
         const active = question.id === activeQuestion?.id;
@@ -184,7 +210,7 @@ const EditVariant: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = (
     }
 
     const question = activeQuestion ?
-        <Question key={activeQuestion.id} question={activeQuestion} onAnswer={onAnswer}
+        <Question key={activeQuestion.id} question={activeQuestion} onAnswer={onAnswer} onContinue={handleContinue}
                   input={variant.input[activeQuestion.id]}/> : <></>
     return (
         <Box>
@@ -195,9 +221,7 @@ const EditVariant: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = (
                 <Grid item xs>
                     {question}
                 </Grid>
-                <Grid item xs={2}>
-                    <Timer variant={variant}/>
-                </Grid>
+                <Timer variant={variant}/>
             </Grid>
 
         </Box>
@@ -221,6 +245,10 @@ const Page: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = ({varian
 
 interface AnswerCallback {
     (question: IQuestionRecord, answer: string): Promise<void>
+}
+
+interface ContinueCallback {
+    (): void
 }
 
 const PageBreadcrumbs: FC<{ variant: IVariantRecord }> = ({variant}) => {
