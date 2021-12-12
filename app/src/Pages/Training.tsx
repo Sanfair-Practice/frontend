@@ -145,10 +145,10 @@ const Variants: FC<{ training: ITrainingRecord }> = ({training}) => {
         return null
     }
     return (
-        <Grid container spacing={2}>
+        <Grid container columns={{ xs: 4 }} columnSpacing={2}>
             {training.variants
                 .map(variant => <Variant key={variant.id} variant={variant}/>)
-                .map(element => <Grid key={element.key} item>{element}</Grid>)
+                .map(element => <Grid xs={1} key={element.key} item>{element}</Grid>)
             }
         </Grid>
     )
@@ -156,7 +156,7 @@ const Variants: FC<{ training: ITrainingRecord }> = ({training}) => {
 const PageBreadcrumbs: FC<{ training: ITrainingRecord }> = ({training}) => {
     // TODO move to Breadcrumbs component.
     return (
-        <Box mt={2} ml={3}>
+        <Box m={2} px={2}>
             <Breadcrumbs separator={<NavigateNext fontSize="small" />}>
                 <Link underline="hover" color="inherit" component={RouteLink} to={Router.linkHome()}>Dashboard</Link>
                 <Link underline="hover" color="inherit" component={RouteLink} to={Router.linkHome()}>Trainings</Link>
@@ -170,7 +170,7 @@ const Component: FC<{ training: ITrainingRecord }> = ({training}) => {
         <Box component="main">
             <Container>
                 <PageBreadcrumbs training={training} />
-                <Grid p={2} container columnSpacing={3}>
+                <Grid px={2} container columnSpacing={3}>
                     <Grid item xs={3}>
                         <Stack spacing={2}>
                             <TrainingInformation training={training}/>
