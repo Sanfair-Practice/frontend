@@ -5,11 +5,14 @@ import {Backend} from "../Api";
 import {
     Box,
     Button,
-    Radio as MuiRadio,
     FormControl,
     FormControlLabel,
-    FormHelperText, FormLabel,
-    Grid, RadioGroup, RadioProps
+    FormHelperText,
+    Grid,
+    Radio as MuiRadio,
+    RadioGroup,
+    RadioProps,
+    Typography
 } from "@mui/material";
 import {useFormik} from "formik";
 import * as Yup from "yup";
@@ -44,13 +47,13 @@ const Form: FC<IForm> = ({sections, onSubmit}) => {
     });
     const checkboxes = sections.map((section) => (
         <Grid key={section.id} item xs={3}>
-            <Radio label={section.name} value={section.id} />
+            <Radio label={section.name} value={section.id}/>
         </Grid>
     ));
     return (
         <form onSubmit={formik.handleSubmit}>
+            <Typography gutterBottom variant="h4">Select Section for training</Typography>
             <FormControl error={Boolean(formik.touched.section && formik.errors.section)}>
-                <FormLabel component="legend">Section</FormLabel>
                 <RadioGroup name="section" onChange={formik.handleChange}>
                     <Box sx={{overflow: "auto", maxHeight: "250px"}}>
                         <Grid container rowSpacing={1} columnSpacing={{xs: 1, sm: 2, md: 3}}>

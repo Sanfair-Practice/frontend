@@ -11,8 +11,8 @@ import {
     FormControlLabel,
     FormGroup,
     FormHelperText,
-    FormLabel,
-    Grid
+    Grid,
+    Typography
 } from "@mui/material";
 import {useFormik} from "formik";
 import * as Yup from "yup";
@@ -52,9 +52,9 @@ const Form: FC<IForm> = ({sections, onSubmit}) => {
     ));
     return (
         <form onSubmit={formik.handleSubmit}>
+            <Typography gutterBottom variant="h4">Select Sections for training</Typography>
             <FormControl error={Boolean(formik.touched.sections && formik.errors.sections)}>
-                <FormLabel component="legend">Sections</FormLabel>
-                <FormGroup>
+                    <FormGroup>
                     <Box sx={{overflow: "auto", maxHeight: "250px"}}>
                         <Grid container rowSpacing={1} columnSpacing={{xs: 1, sm: 2, md: 3}}>
                             {checkboxes}

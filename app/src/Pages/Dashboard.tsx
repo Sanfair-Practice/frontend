@@ -2,10 +2,10 @@ import React, {FC, useState} from "react";
 import Moment from "react-moment";
 import {
     Box,
+    Button,
+    ButtonGroup,
     Container,
-    List,
-    ListItem,
-    ListItemText,
+    Grid,
     Modal,
     Paper,
     Table,
@@ -19,21 +19,38 @@ import {useAsync} from "react-async-hook";
 import {useServiceContainer, useUser} from "../Contexts";
 import {Backend} from "../Api";
 import {ILoggedUser} from "../Models";
-import {ITrainingRecord} from "../Api/Backend";
+import {ITrainingRecord, TrainingStatus} from "../Api/Backend";
 import {SectionForm} from "./SectionForm";
 import {ChapterForm} from "./ChapterForm";
 import {CustomForm} from "./CustomForm";
 import {useNavigate} from "react-router-dom";
 import {Router} from "../Helpers"
 
+const getAction = (training: ITrainingRecord): string => {
+    switch (training.status) {
+        case TrainingStatus.CREATED:
+            return "Start";
+        case TrainingStatus.STARTED:
+            return "Continue";
+        case TrainingStatus.PASSED:
+        case TrainingStatus.FAILED:
+        case TrainingStatus.EXPIRED:
+        default:
+            return "View";
+    }
+}
+
 const Training: FC<{ training: ITrainingRecord }> = ({training}) => {
     const navigate = useNavigate();
+    const action = getAction(training);
+
     return (
-        <TableRow hover sx={{cursor: "pointer"}} onClick={() => navigate(Router.linkTraining(training.id))}>
+        <TableRow hover>
             <TableCell>{training.id}</TableCell>
             <TableCell>{training.type}</TableCell>
             <TableCell>{training.status}</TableCell>
-            <TableCell><Moment format="YYYY/MM/DD HH:mm" date={training.created}/></TableCell>
+            <TableCell align="center"><Moment format="YYYY/MM/DD HH:mm" date={training.created}/></TableCell>
+            <TableCell size="small"><Button onClick={() => navigate(Router.linkTraining(training.id))}>{action}</Button></TableCell>
         </TableRow>
     )
 }
@@ -58,13 +75,14 @@ const Trainings: FC<{ update: string }> = ({update}) => {
 
     return (
         <TableContainer component={Paper}>
-            <Table sx={{minWidth: 650}} aria-label="simple table">
+            <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell>ID</TableCell>
+                        <TableCell>#</TableCell>
                         <TableCell>Type</TableCell>
                         <TableCell>Status</TableCell>
-                        <TableCell>Date</TableCell>
+                        <TableCell align="center">Date</TableCell>
+                        <TableCell size="small">Actions</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -95,26 +113,19 @@ const Menu: FC<{ setUpdate: React.Dispatch<string> }> = ({setUpdate}) => {
     const useSectionForm = () => setForm(React.createElement(SectionForm, {onSubmit}));
     const useChapterForm = () => setForm(React.createElement(ChapterForm, {onSubmit}));
     const useCustomForm = () => setForm(React.createElement(CustomForm, {onSubmit}));
-
     return (
-        <>
-            <List>
-                <ListItem button onClick={useSectionForm}>
-                    <ListItemText primary="Start section"/>
-                </ListItem>
-                <ListItem button onClick={useChapterForm}>
-                    <ListItemText primary="Start chapter"/>
-                </ListItem>
-                <ListItem button onClick={useCustomForm}>
-                    <ListItemText primary="Select configuration"/>
-                </ListItem>
-            </List>
+        <Grid container justifyContent="center" p={2} component={Paper} position="sticky" top={"5rem"}>
+            <ButtonGroup orientation="vertical">
+                <Button onClick={useSectionForm}>Start section</Button>
+                <Button onClick={useChapterForm}>Start chapter</Button>
+                <Button onClick={useCustomForm}>Select configuration</Button>
+            </ButtonGroup>
             <Modal open={form !== undefined} onClose={clear}>
                 <Box sx={{position: "absolute", ...style}}>
                     {form}
                 </Box>
             </Modal>
-        </>
+        </Grid>
     )
 }
 
@@ -122,20 +133,14 @@ export const Dashboard: FC = () => {
     const [update, setUpdate] = useState("");
     return (
         <Container>
-            <Box sx={{
-                display: "flex",
-                justifyContent: "space-around",
-                p: 1,
-                m: 1,
-                bgcolor: "background.paper",
-            }}>
-                <Box sx={{m: 1}}>
+            <Grid p={2} container columnSpacing={3}>
+                <Grid item xs={3}>
                     <Menu setUpdate={setUpdate}/>
-                </Box>
-                <Box sx={{flexGrow: 1, m: 1}}>
+                </Grid>
+                <Grid item xs={9}>
                     <Trainings update={update}/>
-                </Box>
-            </Box>
+                </Grid>
+            </Grid>
         </Container>
     )
 }

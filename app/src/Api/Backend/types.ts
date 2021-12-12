@@ -25,13 +25,21 @@ export interface IRegistrationProfile {
     readonly password_confirmation: string,
 }
 
+export enum TrainingStatus {
+    CREATED = "created",
+    STARTED = "started",
+    PASSED = "finished",
+    FAILED = "failed",
+    EXPIRED = "expired",
+}
+
 export interface ITrainingRecord {
     readonly id: number,
     readonly errors: number,
     readonly quantity: number,
     readonly time: number,
     readonly type: string,
-    readonly status: string,
+    readonly status: TrainingStatus,
     readonly created: string,
     readonly sections?: Array<ISectionRecord>,
     readonly chapters?: Array<IChapterRecord>,
