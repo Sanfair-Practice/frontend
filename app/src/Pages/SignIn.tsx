@@ -1,4 +1,4 @@
-import {Box, Button, Container, Link, TextField, Typography} from "@mui/material";
+import {Box, Button, Container, Link, Paper, TextField, Typography} from "@mui/material";
 import React, {FC} from "react";
 import {Link as RouteLink} from "react-router-dom";
 import {useFormik} from "formik";
@@ -7,6 +7,7 @@ import {Backend} from "../Api"
 import {useServiceContainer} from "../Contexts";
 import {LoggedUser} from "../Models";
 import {useUser} from "../Contexts";
+import {Router} from "../Helpers";
 
 export const SignIn: FC = () => {
     const api: Backend.Api = useServiceContainer().resolve<Backend.Api>("backendApi");
@@ -40,21 +41,12 @@ export const SignIn: FC = () => {
     });
 
     return(
-        <Box component="main"
-             sx={{
-                 alignItems: "center",
-                 display: "flex",
-                 flexGrow: 1,
-                 minHeight: "100%"
-             }}
-        >
-            <Container maxWidth="sm">
+        <Box component="main" m={2}>
+            <Container maxWidth="sm" component={Paper}>
+                <Box pt={2}>
+                    <Typography gutterBottom color="textPrimary" variant="h4">Sign in</Typography>
+                </Box>
                 <form onSubmit={formik.handleSubmit}>
-                    <Box sx={{my: 3}}>
-                        <Typography color="textPrimary" variant="h4">
-                            Sign in
-                        </Typography>
-                    </Box>
                     <TextField
                         fullWidth
                         label="Email Address"
@@ -83,26 +75,17 @@ export const SignIn: FC = () => {
                         onChange={formik.handleChange}
                         value={formik.values.password}
                     />
-                    <Box sx={{py: 2}}>
-                        <Button
-                            color="primary"
-                            fullWidth
-                            size="large"
-                            type="submit"
-                            variant="contained"
-                        >
-                            Sign In Now
-                        </Button>
+                    <Box mt={2}>
+                        <Button fullWidth type="submit" variant="contained" size="large">Sign In</Button>
                     </Box>
-                    <Typography
-                        color="textSecondary"
-                        variant="body2"
-                    >
-                        Don&apos;t have an account?
-                        {" "}
-                        <Link variant="subtitle2" component={RouteLink} to={"/sign-up"}>Sign Up</Link>
-                    </Typography>
                 </form>
+                <Box mt={2} pb={2}>
+                    <Typography color="textSecondary" variant="body2" gutterBottom>
+                        {"Don't have an account?"}
+                        {" "}
+                        <Link variant="subtitle2" component={RouteLink} to={Router.linkSignUp()}>Sign Up</Link>
+                    </Typography>
+                </Box>
             </Container>
         </Box>
     );
