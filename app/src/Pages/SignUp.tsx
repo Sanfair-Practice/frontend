@@ -1,4 +1,4 @@
-import {Box, Button, Container, Link, TextField, Typography} from "@mui/material";
+import {Box, Button, Container, Link, Paper, TextField, Typography} from "@mui/material";
 import React, {FC} from "react";
 import {Link as RouteLink} from "react-router-dom";
 import MuiPhoneNumber from "material-ui-phone-number";
@@ -7,6 +7,7 @@ import {useFormik, FormikErrors} from "formik";
 import {Backend} from "../Api"
 import {useServiceContainer, useUser} from "../Contexts";
 import {LoggedUser} from "../Models";
+import {Router} from "../Helpers";
 
 export const SignUp: FC = () => {
     const api: Backend.Api = useServiceContainer().resolve<Backend.Api>("backendApi");
@@ -66,21 +67,13 @@ export const SignUp: FC = () => {
     });
 
     return (
-        <Box component="main"
-             sx={{
-                 alignItems: "center",
-                 display: "flex",
-                 flexGrow: 1,
-                 minHeight: "100%"
-             }}
-        >
-            <Container maxWidth="sm">
+        <Box component="main" m={2}>
+            <Container maxWidth="sm" component={Paper}>
+                <Box pt={2}>
+                    <Typography gutterBottom color="textPrimary" variant="h4">Create a new account</Typography>
+                </Box>
                 <form onSubmit={formik.handleSubmit}>
-                    <Box sx={{my: 3}}>
-                        <Typography color="textPrimary" variant="h4">
-                            Create a new account
-                        </Typography>
-                    </Box>
+
                     <TextField
                         fullWidth
                         label="First name"
@@ -180,26 +173,17 @@ export const SignUp: FC = () => {
                         onChange={formik.handleChange}
                         value={formik.values.password_confirmation}
                     />
-                    <Box sx={{py: 2}}>
-                        <Button
-                            color="primary"
-                            fullWidth
-                            size="large"
-                            type="submit"
-                            variant="contained"
-                        >
-                            Sign In Now
-                        </Button>
+                    <Box mt={2}>
+                        <Button fullWidth color="primary" type="submit" variant="contained">Sign In Now</Button>
                     </Box>
-                    <Typography
-                        color="textSecondary"
-                        variant="body2"
-                    >
+                </form>
+                <Box mt={2} pb={2}>
+                    <Typography color="textSecondary" variant="body2" gutterBottom>
                         Have an account?
                         {" "}
-                        <Link variant="subtitle2" component={RouteLink} to="/sign-in">Sign In</Link>
+                        <Link variant="subtitle2" component={RouteLink} to={Router.linkSignIn()}>Sign In</Link>
                     </Typography>
-                </form>
+                </Box>
             </Container>
         </Box>
     );
