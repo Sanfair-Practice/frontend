@@ -174,7 +174,7 @@ export const SignUp: FC = () => {
                         value={formik.values.password_confirmation}
                     />
                     <Box mt={2}>
-                        <Button fullWidth color="primary" type="submit" variant="contained">Sign In Now</Button>
+                        <Button fullWidth color="primary" type="submit" variant="contained" size="large">Sign In Now</Button>
                     </Box>
                 </form>
                 <Box mt={2} pb={2}>
