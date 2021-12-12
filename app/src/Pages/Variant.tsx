@@ -1,5 +1,5 @@
 import React, {FC, Fragment, useState} from "react";
-import {Navigate, useParams} from "react-router-dom";
+import {Link as RouteLink, Navigate, useParams} from "react-router-dom";
 import {NotFound} from "./NotFound";
 import {IQuestionRecord, IVariantInput, IVariantRecord, VariantStatus} from "../Api/Backend";
 import {useServiceContainer, useUser} from "../Contexts";
@@ -9,6 +9,7 @@ import {ILoggedUser} from "../Models";
 import {Router} from "../Helpers";
 import {
     Box,
+    Breadcrumbs,
     Button,
     ButtonGroup,
     Card,
@@ -16,19 +17,22 @@ import {
     Container,
     Divider,
     FormControlLabel,
+    Grid,
+    Link,
     List,
     ListItem,
     ListItemIcon,
     ListItemText,
     Paper,
     Radio,
-    RadioGroup,
+    RadioGroup, Stack,
     Typography
 } from "@mui/material";
-import {Check, Clear} from "@mui/icons-material"
+import {Check, Clear, NavigateNext} from "@mui/icons-material"
 import {ButtonProps} from "@mui/material/Button/Button";
 import {useFormik} from "formik";
 import * as Yup from "yup";
+import {Countdown} from "../Components/Countdown";
 
 type Color = "primary" | "success" | "error" | "default";
 
@@ -61,7 +65,7 @@ const Choices: FC<{ question: IQuestionRecord, input: IVariantInput }> = ({quest
         </Box>
     );
 }
-const FormChoices: FC<{ question: IQuestionRecord, onAnswer:AnswerCallback }> = ({question, onAnswer}) => {
+const FormChoices: FC<{ question: IQuestionRecord, onAnswer: AnswerCallback }> = ({question, onAnswer}) => {
     const formik = useFormik({
         initialValues: {
             answer: "",
@@ -81,7 +85,7 @@ const FormChoices: FC<{ question: IQuestionRecord, onAnswer:AnswerCallback }> = 
             <Fragment key={key}>
                 {index !== 0 && <Divider/>}
                 <ListItem>
-                    <FormControlLabel value={key} label={value} control={<Radio />}/>
+                    <FormControlLabel value={key} label={value} control={<Radio/>}/>
                 </ListItem>
             </Fragment>
         )
@@ -100,17 +104,43 @@ const FormChoices: FC<{ question: IQuestionRecord, onAnswer:AnswerCallback }> = 
     );
 }
 
-const Question: FC<{ question: IQuestionRecord, input?: IVariantInput, onAnswer:AnswerCallback }> = ({question, input, onAnswer}) => {
-    const choices = input ? <Choices question={question} input={input}/> : <FormChoices question={question} onAnswer={onAnswer}/>;
+interface QuestionProps {
+    question: IQuestionRecord,
+    input?: IVariantInput,
+    onAnswer: AnswerCallback
+}
+
+const Question: FC<QuestionProps> = ({question, input, onAnswer}) => {
+    const choices = input ? <Choices question={question} input={input}/> :
+        <FormChoices question={question} onAnswer={onAnswer}/>;
     return (
-        <>
-            <Typography variant="h4">{question.text}</Typography>
-            {choices}
-        </>
+        <Card>
+            <CardContent>
+                <Typography variant="h4">{question.text}</Typography>
+                {choices}
+            </CardContent>
+        </Card>
     )
 }
 
-const EditVariant: FC<{ variant: IVariantRecord, onAnswer:AnswerCallback }> = ({variant, onAnswer}) => {
+
+const Timer: FC<{variant: IVariantRecord}> = ({variant}) => {
+    if (variant.status !== VariantStatus.STARTED || !variant.end) {
+        return null;
+    }
+
+    return (
+        <Box component={Paper} p={2}>
+            <Stack>
+                <Typography mx="auto" variant="h4">Time left</Typography>
+                <Typography mx="auto" variant="h5">
+                    <Countdown format={"hh:mm:ss"} durationFromNow date={variant.end} interval={1000}/>
+                </Typography>
+            </Stack>
+        </Box>
+    )
+}
+const EditVariant: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = ({variant, onAnswer}) => {
     const answered = Object.entries(variant.input).map(([index]) => {
         return +index;
     });
@@ -154,28 +184,27 @@ const EditVariant: FC<{ variant: IVariantRecord, onAnswer:AnswerCallback }> = ({
     }
 
     const question = activeQuestion ?
-        <Question question={activeQuestion} onAnswer={onAnswer} input={variant.input[activeQuestion.id]}/> : <></>
+        <Question key={activeQuestion.id} question={activeQuestion} onAnswer={onAnswer}
+                  input={variant.input[activeQuestion.id]}/> : <></>
     return (
         <Box>
-            <Paper>
-                <Box p={1}>
-                    <ButtonGroup fullWidth disableElevation size="large">{buttons}</ButtonGroup>
-                </Box>
-            </Paper>
-            <Box mt={1}>
-                <Card>
-                    <CardContent>
-                        <Box p={1}>
-                            {question}
-                        </Box>
-                    </CardContent>
-                </Card>
+            <Box p={1} mb={2} component={Paper}>
+                <ButtonGroup fullWidth disableElevation size="large">{buttons}</ButtonGroup>
             </Box>
+            <Grid container columnSpacing={2}>
+                <Grid item xs>
+                    {question}
+                </Grid>
+                <Grid item xs={2}>
+                    <Timer variant={variant}/>
+                </Grid>
+            </Grid>
+
         </Box>
     )
 }
 
-const Page: FC<{ variant: IVariantRecord, onAnswer:AnswerCallback }> = ({variant, onAnswer}) => {
+const Page: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = ({variant, onAnswer}) => {
     switch (variant.status) {
         case VariantStatus.CREATED:
             return <Navigate to={Router.linkTraining(variant.test_id)}/>;
@@ -191,7 +220,25 @@ const Page: FC<{ variant: IVariantRecord, onAnswer:AnswerCallback }> = ({variant
 }
 
 interface AnswerCallback {
-    (question: IQuestionRecord, answer:string): Promise<void>
+    (question: IQuestionRecord, answer: string): Promise<void>
+}
+
+const PageBreadcrumbs: FC<{ variant: IVariantRecord }> = ({variant}) => {
+    // TODO move to Breadcrumbs component.
+    return (
+        <Box m={2} px={2}>
+            <Breadcrumbs separator={<NavigateNext fontSize="small"/>}>
+                <Link underline="hover" color="inherit" component={RouteLink} to={Router.linkHome()}>Dashboard</Link>
+                <Link underline="hover" color="inherit" component={RouteLink} to={Router.linkHome()}>Trainings</Link>
+                <Link underline="hover" color="inherit" component={RouteLink}
+                      to={Router.linkTraining(variant.test_id)}>Test #{variant.test_id}</Link>
+                <Link underline="hover" color="inherit" component={RouteLink}
+                      to={Router.linkTraining(variant.test_id)}>Variants</Link>
+                <Link underline="hover" color="text.primary" component={RouteLink}
+                      to={Router.linkVariant(variant.test_id, variant.id)}>Variant #{variant.id}</Link>
+            </Breadcrumbs>
+        </Box>
+    );
 }
 
 const AsyncPage: FC<{ trainingId: number, variantId: number }> = ({trainingId, variantId}) => {
@@ -201,7 +248,7 @@ const AsyncPage: FC<{ trainingId: number, variantId: number }> = ({trainingId, v
         return api.getVariant(user, training, variant);
     };
     const result = useAsync(callback, [(user as ILoggedUser).id, trainingId, variantId]);
-    const handleAnswer:AnswerCallback = async (question, answer) => {
+    const handleAnswer: AnswerCallback = async (question, answer) => {
         const record = await api.answerQuestion({
             user: (user as ILoggedUser).id,
             training: trainingId,
@@ -224,6 +271,7 @@ const AsyncPage: FC<{ trainingId: number, variantId: number }> = ({trainingId, v
     return (
         <Box component="main">
             <Container>
+                <PageBreadcrumbs variant={result.result}/>
                 <Page variant={result.result} onAnswer={handleAnswer}/>
             </Container>
         </Box>
