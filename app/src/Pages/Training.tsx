@@ -146,7 +146,7 @@ const Variants: FC<{ training: ITrainingRecord }> = ({training}) => {
         return null
     }
     return (
-        <Grid container columns={{ xs: 4 }} columnSpacing={2}>
+        <Grid container columns={{ xs: 4 }} spacing={2}>
             {training.variants
                 .map(variant => <Variant key={variant.id} variant={variant}/>)
                 .map(element => <Grid xs={1} key={element.key} item>{element}</Grid>)
