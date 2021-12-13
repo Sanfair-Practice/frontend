@@ -135,19 +135,19 @@ const Question: FC<QuestionProps> = ({question, input, onAnswer, onContinue}) =>
 }
 
 const PassedMessage: FC = () => (
-    <Typography variant="h3" color="success.main">You passed the test!</Typography>
+    <Typography variant="inherit" color="success.main">You passed the test!</Typography>
 )
 const FailedMessage: FC = () => (
-    <Typography variant="h3" color="error.main">You failed the test!</Typography>
+    <Typography variant="inherit" color="error.main">You failed the test!</Typography>
 )
 const TimeoutMessage: FC = () => (
     <Stack spacing={1}>
-        <Typography variant="h3" color="error.main">Time is over.</Typography>
-        <Typography variant="h3" color="error.main">Test failed!</Typography>
+        <Typography variant="inherit" color="error.main">Time is over.</Typography>
+        <Typography variant="inherit" color="error.main">Test failed!</Typography>
     </Stack>
 )
 
-const CompletedModalContent: FC<{variant: IVariantRecord}> = ({variant}) => {
+const StatusMessage: FC<{variant: IVariantRecord}> = ({variant}) => {
     switch (variant.status) {
         case VariantStatus.PASSED:
             return <PassedMessage />
@@ -158,6 +158,20 @@ const CompletedModalContent: FC<{variant: IVariantRecord}> = ({variant}) => {
         default:
             throw new Error(`Invalid status: ${variant.status}`);
     }
+}
+const Status: FC<{variant: IVariantRecord}> = ({variant}) => {
+    if (variant.status === VariantStatus.STARTED) {
+        return null;
+    }
+    return (
+        <Grid item xs={2}>
+            <Box component={Paper} p={2}>
+                <Typography variant="h5" textAlign="center">
+                    <StatusMessage variant={variant} />
+                </Typography>
+            </Box>
+        </Grid>
+    )
 }
 const Timer: FC<{variant: IVariantRecord}> = ({variant}) => {
     if (variant.status !== VariantStatus.STARTED || !variant.end) {
@@ -258,9 +272,12 @@ const ShowVariant: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = (
                     {question}
                 </Grid>
                 <Timer variant={variant}/>
+                <Status variant={variant} />
             </Grid>
             <Modal open={completeModal} onClose={closeModal}>
-                <CompletedModalContent variant={variant} />
+                <Typography variant="h3" textAlign="center">
+                    <StatusMessage variant={variant} />
+                </Typography>
             </Modal>
         </Box>
     )
