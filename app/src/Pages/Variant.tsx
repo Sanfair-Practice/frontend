@@ -174,7 +174,7 @@ const Status: FC<{variant: IVariantRecord}> = ({variant}) => {
     )
 }
 const Timer: FC<{variant: IVariantRecord}> = ({variant}) => {
-    if (variant.status !== VariantStatus.STARTED || !variant.end) {
+    if (variant.status !== VariantStatus.STARTED || !variant.end || Date.parse(variant.end) < Date.now()) {
         return null;
     }
 
