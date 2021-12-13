@@ -1,4 +1,4 @@
-import React, {FC, Fragment, useState} from "react";
+import React, {FC, Fragment, useEffect, useState} from "react";
 import {Link as RouteLink, Navigate, useParams} from "react-router-dom";
 import {NotFound} from "./NotFound";
 import {IQuestionRecord, IVariantInput, IVariantRecord, VariantStatus} from "../Api/Backend";
@@ -34,6 +34,8 @@ import {ButtonProps} from "@mui/material/Button/Button";
 import {useFormik} from "formik";
 import * as Yup from "yup";
 import {Countdown} from "../Components/Countdown";
+import {Modal} from "../Components/Modal";
+import moment from "moment";
 
 type Color = "primary" | "success" | "error" | "default";
 
@@ -132,7 +134,31 @@ const Question: FC<QuestionProps> = ({question, input, onAnswer, onContinue}) =>
     )
 }
 
+const PassedMessage: FC = () => (
+    <Typography variant="h3" color="success.main">You passed the test!</Typography>
+)
+const FailedMessage: FC = () => (
+    <Typography variant="h3" color="error.main">You failed the test!</Typography>
+)
+const TimeoutMessage: FC = () => (
+    <Stack spacing={1}>
+        <Typography variant="h3" color="error.main">Time is over.</Typography>
+        <Typography variant="h3" color="error.main">Test failed!</Typography>
+    </Stack>
+)
 
+const CompletedModalContent: FC<{variant: IVariantRecord}> = ({variant}) => {
+    switch (variant.status) {
+        case VariantStatus.PASSED:
+            return <PassedMessage />
+        case VariantStatus.FAILED:
+            return <FailedMessage />
+        case VariantStatus.EXPIRED:
+            return <TimeoutMessage />
+        default:
+            throw new Error(`Invalid status: ${variant.status}`);
+    }
+}
 const Timer: FC<{variant: IVariantRecord}> = ({variant}) => {
     if (variant.status !== VariantStatus.STARTED || !variant.end) {
         return null;
@@ -144,14 +170,14 @@ const Timer: FC<{variant: IVariantRecord}> = ({variant}) => {
                 <Stack>
                     <Typography mx="auto" variant="h4">Time left</Typography>
                     <Typography mx="auto" variant="h5">
-                        <Countdown format={"hh:mm:ss"} durationFromNow date={variant.end} interval={1000}/>
+                        <Countdown format={"mm:ss"} durationFromNow date={variant.end} interval={1000}/>
                     </Typography>
                 </Stack>
             </Box>
         </Grid>
     )
 }
-const EditVariant: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = ({variant, onAnswer}) => {
+const ShowVariant: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = ({variant, onAnswer}) => {
     const answered = Object.entries(variant.input).map(([index]) => {
         return +index;
     });
@@ -164,6 +190,17 @@ const EditVariant: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = (
         variant.questions?.find(questioned) ??
         variant.questions?.find(Boolean)
     );
+    const [completed, setCompleted] = useState(variant.status !== VariantStatus.STARTED);
+    const [completeModal, toggleModal] = useState(false);
+    const closeModal = () => toggleModal(false);
+    const openModal = () => toggleModal(true);
+
+    useEffect(() => {
+        if (!completed && variant.status !== VariantStatus.STARTED) {
+            setCompleted(true);
+            openModal();
+        }
+    }, [variant, completed]);
 
     const max = (variant.questions?.length || 0) / 10;
 
@@ -186,7 +223,6 @@ const EditVariant: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = (
         }
 
         setActive(variant.questions?.[index + 1] ?? variant.questions?.[0]);
-
     }
 
     const buttons = variant.questions?.map((question, index) => {
@@ -223,7 +259,9 @@ const EditVariant: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = (
                 </Grid>
                 <Timer variant={variant}/>
             </Grid>
-
+            <Modal open={completeModal} onClose={closeModal}>
+                <CompletedModalContent variant={variant} />
+            </Modal>
         </Box>
     )
 }
@@ -233,14 +271,11 @@ const Page: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = ({varian
         case VariantStatus.CREATED:
             return <Navigate to={Router.linkTraining(variant.test_id)}/>;
         case VariantStatus.STARTED:
-            return <EditVariant variant={variant} onAnswer={onAnswer}/>;
         case VariantStatus.PASSED:
         case VariantStatus.FAILED:
         case VariantStatus.EXPIRED:
-            return <EditVariant variant={variant} onAnswer={onAnswer}/>;
-            break;
+            return <ShowVariant variant={variant} onAnswer={onAnswer}/>;
     }
-    return <NotFound/>
 }
 
 interface AnswerCallback {
@@ -286,6 +321,20 @@ const AsyncPage: FC<{ trainingId: number, variantId: number }> = ({trainingId, v
         });
         result.merge({result: record});
     }
+
+    useEffect(() => {
+        if (result.result?.status === VariantStatus.STARTED && result.result?.end) {
+            const record = result.result;
+            const diff = moment(record.end).diff(moment());
+            if (diff > 0) {
+                const id = setTimeout(() => {
+                    result.merge({result: {...record, status: VariantStatus.EXPIRED}});
+                }, diff);
+
+                return () => clearTimeout(id);
+            }
+        }
+    }, [result]);
 
     if (result.loading) {
         return <>Loading ...</>;

@@ -6,7 +6,6 @@ import {
     ButtonGroup,
     Container,
     Grid,
-    Modal,
     Paper,
     Table,
     TableBody,
@@ -25,6 +24,7 @@ import {ChapterForm} from "./ChapterForm";
 import {CustomForm} from "./CustomForm";
 import {useNavigate} from "react-router-dom";
 import {Router} from "../Helpers"
+import {Modal} from "../Components/Modal"
 
 const getAction = (training: ITrainingRecord): string => {
     switch (training.status) {
@@ -93,14 +93,6 @@ const Trainings: FC<{ update: string }> = ({update}) => {
     );
 }
 
-const style = {
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    bgcolor: "background.paper",
-    p: 4,
-};
-
 const Menu: FC<{ setUpdate: React.Dispatch<string> }> = ({setUpdate}) => {
     const [form, setForm] = React.useState<React.ReactElement>();
     const clear = () => setForm(undefined);
@@ -119,9 +111,7 @@ const Menu: FC<{ setUpdate: React.Dispatch<string> }> = ({setUpdate}) => {
                 <Button onClick={useCustomForm}>Select configuration</Button>
             </ButtonGroup>
             <Modal open={form !== undefined} onClose={clear}>
-                <Box sx={{position: "absolute", ...style}}>
-                    {form}
-                </Box>
+                {form || <></>}
             </Modal>
         </Grid>
     )
