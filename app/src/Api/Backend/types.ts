@@ -25,7 +25,7 @@ export interface IRegistrationProfile {
     readonly password_confirmation: string,
 }
 
-export enum TrainingStatus {
+export enum TestStatus {
     CREATED = "created",
     STARTED = "started",
     PASSED = "finished",
@@ -33,13 +33,13 @@ export enum TrainingStatus {
     EXPIRED = "expired",
 }
 
-export interface ITrainingRecord {
+export interface ITestRecord {
     readonly id: number,
     readonly errors: number,
     readonly quantity: number,
     readonly time: number,
     readonly type: string,
-    readonly status: TrainingStatus,
+    readonly status: TestStatus,
     readonly created: string,
     readonly sections?: Array<ISectionRecord>,
     readonly chapters?: Array<IChapterRecord>,
@@ -70,7 +70,7 @@ export interface IVariantRecord {
     readonly time: number,
     readonly end: string|null,
     readonly errors: number,
-    readonly test_id: number,
+    readonly test: ITestRecord,
     readonly input: Record<string, IVariantInput>,
     readonly status: VariantStatus,
     readonly questions?: Array<IQuestionRecord>

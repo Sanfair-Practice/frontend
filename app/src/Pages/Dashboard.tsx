@@ -18,7 +18,7 @@ import {useAsync} from "react-async-hook";
 import {useServiceContainer, useUser} from "../Contexts";
 import {Backend} from "../Api";
 import {ILoggedUser} from "../Models";
-import {ITrainingRecord, TrainingStatus} from "../Api/Backend";
+import {ITestRecord, TestStatus} from "../Api/Backend";
 import {SectionForm} from "./SectionForm";
 import {ChapterForm} from "./ChapterForm";
 import {CustomForm} from "./CustomForm";
@@ -26,21 +26,21 @@ import {useNavigate} from "react-router-dom";
 import {Router} from "../Helpers"
 import {Modal} from "../Components/Modal"
 
-const getAction = (training: ITrainingRecord): string => {
+const getAction = (training: ITestRecord): string => {
     switch (training.status) {
-        case TrainingStatus.CREATED:
+        case TestStatus.CREATED:
             return "Start";
-        case TrainingStatus.STARTED:
+        case TestStatus.STARTED:
             return "Continue";
-        case TrainingStatus.PASSED:
-        case TrainingStatus.FAILED:
-        case TrainingStatus.EXPIRED:
+        case TestStatus.PASSED:
+        case TestStatus.FAILED:
+        case TestStatus.EXPIRED:
         default:
             return "View";
     }
 }
 
-const Training: FC<{ training: ITrainingRecord }> = ({training}) => {
+const Training: FC<{ training: ITestRecord }> = ({training}) => {
     const navigate = useNavigate();
     const action = getAction(training);
 
@@ -96,7 +96,7 @@ const Trainings: FC<{ update: string }> = ({update}) => {
 const Menu: FC<{ setUpdate: React.Dispatch<string> }> = ({setUpdate}) => {
     const [form, setForm] = React.useState<React.ReactElement>();
     const clear = () => setForm(undefined);
-    const onSubmit = (record: ITrainingRecord) => {
+    const onSubmit = (record: ITestRecord) => {
         clear()
         setUpdate(String(record.id));
     }

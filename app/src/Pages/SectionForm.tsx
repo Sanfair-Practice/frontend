@@ -23,7 +23,7 @@ const Radio: FC<{ label: string } & RadioProps> = ({label, ...props}) => {
 }
 
 interface ISubmit {
-    onSubmit: (record: Backend.ITrainingRecord) => void
+    onSubmit: (record: Backend.ITestRecord) => void
 }
 
 interface IForm extends ISubmit {

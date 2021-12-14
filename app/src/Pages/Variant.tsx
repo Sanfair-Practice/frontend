@@ -1,7 +1,7 @@
 import React, {FC, Fragment, useEffect, useState} from "react";
 import {Link as RouteLink, Navigate, useParams} from "react-router-dom";
 import {NotFound} from "./NotFound";
-import {IQuestionRecord, IVariantInput, IVariantRecord, VariantStatus} from "../Api/Backend";
+import {IQuestionRecord, IVariantInput, IVariantRecord, TestStatus, VariantStatus} from "../Api/Backend";
 import {useServiceContainer, useUser} from "../Contexts";
 import {Backend} from "../Api";
 import {useAsync} from "react-async-hook";
@@ -226,17 +226,27 @@ const ShowVariant: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = (
     });
     const handleContinue = () => {
         const next = variant.questions?.find(questioned)
-        if (next) {
+        if (next && variant.test.status !== TestStatus.FAILED) {
             setActive(next);
             return;
         }
         const index = variant.questions?.findIndex((question) => question.id === activeQuestion?.id);
-        console.log(index);
         if (index === undefined) {
             return;
         }
 
         setActive(variant.questions?.[index + 1] ?? variant.questions?.[0]);
+    }
+    const getInput = (question: IQuestionRecord) => {
+        const input = variant.input[question.id];
+        if (!input && variant.test.status === TestStatus.FAILED) {
+            return {
+                submitted: "",
+                correct: "",
+                value: "",
+            }
+        }
+        return input;
     }
 
     const buttons = variant.questions?.map((question, index) => {
@@ -261,7 +271,7 @@ const ShowVariant: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = (
 
     const question = activeQuestion ?
         <Question key={activeQuestion.id} question={activeQuestion} onAnswer={onAnswer} onContinue={handleContinue}
-                  input={variant.input[activeQuestion.id]}/> : <></>
+                  input={getInput(activeQuestion)}/> : <></>
     return (
         <Box>
             <Box p={1} mb={2} component={Paper}>
@@ -286,7 +296,7 @@ const ShowVariant: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = (
 const Page: FC<{ variant: IVariantRecord, onAnswer: AnswerCallback }> = ({variant, onAnswer}) => {
     switch (variant.status) {
         case VariantStatus.CREATED:
-            return <Navigate to={Router.linkTraining(variant.test_id)}/>;
+            return <Navigate to={Router.linkTraining(variant.test.id)}/>;
         case VariantStatus.STARTED:
         case VariantStatus.PASSED:
         case VariantStatus.FAILED:
@@ -311,11 +321,11 @@ const PageBreadcrumbs: FC<{ variant: IVariantRecord }> = ({variant}) => {
                 <Link underline="hover" color="inherit" component={RouteLink} to={Router.linkHome()}>Dashboard</Link>
                 <Link underline="hover" color="inherit" component={RouteLink} to={Router.linkHome()}>Trainings</Link>
                 <Link underline="hover" color="inherit" component={RouteLink}
-                      to={Router.linkTraining(variant.test_id)}>Test #{variant.test_id}</Link>
+                      to={Router.linkTraining(variant.test.id)}>Test #{variant.test.id}</Link>
                 <Link underline="hover" color="inherit" component={RouteLink}
-                      to={Router.linkTraining(variant.test_id)}>Variants</Link>
+                      to={Router.linkTraining(variant.test.id)}>Variants</Link>
                 <Link underline="hover" color="text.primary" component={RouteLink}
-                      to={Router.linkVariant(variant.test_id, variant.id)}>Variant #{variant.id}</Link>
+                      to={Router.linkVariant(variant.test.id, variant.id)}>Variant #{variant.id}</Link>
             </Breadcrumbs>
         </Box>
     );

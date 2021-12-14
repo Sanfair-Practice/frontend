@@ -5,7 +5,7 @@ import {
     ILoggedUserRecord,
     IUserRecord,
     IRegistrationProfile, ISectionRecord,
-    ITrainingRecord, IVariantRecord
+    ITestRecord, IVariantRecord
 } from "./types";
 
 export class ValidationError extends Error {
@@ -57,12 +57,12 @@ export class Api {
         return response.data.data;
     }
 
-    public async createTrainingForSections(user: number, sections: Array<string>): Promise<ITrainingRecord> {
+    public async createTrainingForSections(user: number, sections: Array<string>): Promise<ITestRecord> {
         const response = await this.httpClient.post(`/api/user/${user}/training`, {sections});
         return response.data.data;
     }
 
-    public async createTrainingForChapters(user: number, chapters: Array<string>): Promise<ITrainingRecord> {
+    public async createTrainingForChapters(user: number, chapters: Array<string>): Promise<ITestRecord> {
         const response = await this.httpClient.post(`/api/user/${user}/training`, {chapters});
         return response.data.data;
     }
@@ -79,13 +79,13 @@ export class Api {
         return response.data.data;
     }
 
-    public async getTrainings(user: number): Promise<Array<ITrainingRecord>>
+    public async getTrainings(user: number): Promise<Array<ITestRecord>>
     {
         const response = await this.httpClient.get(`/api/user/${user}/training`);
         return response.data.data;
     }
 
-    public async getTraining(user: number, training: number): Promise<ITrainingRecord>
+    public async getTraining(user: number, training: number): Promise<ITestRecord>
     {
         const response = await this.httpClient.get(`/api/user/${user}/training/${training}`);
         return response.data.data;

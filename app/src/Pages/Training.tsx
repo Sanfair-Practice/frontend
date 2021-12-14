@@ -4,9 +4,17 @@ import {Backend} from "../Api";
 import {useAsync} from "react-async-hook";
 import {ILoggedUser} from "../Models";
 import {Link as RouteLink, useNavigate, useParams} from "react-router-dom";
-import {IChapterRecord, ISectionRecord, ITrainingRecord, IVariantRecord, VariantStatus} from "../Api/Backend";
 import {
-    Box, Breadcrumbs,
+    IChapterRecord,
+    ISectionRecord,
+    ITestRecord,
+    IVariantRecord,
+    TestStatus,
+    VariantStatus
+} from "../Api/Backend";
+import {
+    Box,
+    Breadcrumbs,
     Button,
     Card,
     CardActions,
@@ -14,7 +22,8 @@ import {
     CardHeader,
     Chip,
     Container,
-    Grid, Link,
+    Grid,
+    Link,
     Stack,
     Typography
 } from "@mui/material";
@@ -37,18 +46,24 @@ const VariantActions: FC<{ variant: IVariantRecord }> = ({variant}) => {
     const api = useServiceContainer().resolve<Backend.Api>("backendApi");
     const {user} = useUser();
     const handleStart = async () => {
-        const record = await api.startVariant((user as ILoggedUser).id, variant.test_id, variant.id);
-        navigate(Router.linkVariant(record.test_id, record.id));
+        const record = await api.startVariant((user as ILoggedUser).id, variant.test.id, variant.id);
+        navigate(Router.linkVariant(record.test.id, record.id));
     }
     const handleView = () => {
-        navigate(Router.linkVariant(variant.test_id, variant.id));
+        navigate(Router.linkVariant(variant.test.id, variant.id));
     }
 
     switch (variant.status) {
         case VariantStatus.CREATED:
-            return <Button onClick={handleStart} size="small">Start</Button>;
+            if (variant.test.status !== TestStatus.FAILED) {
+                return <Button onClick={handleStart} size="small">Start</Button>;
+            }
+            return <></>;
         case VariantStatus.STARTED:
-            return <Button onClick={handleView} size="small">Continue</Button>;
+            if (variant.test.status !== TestStatus.FAILED) {
+                return <Button onClick={handleView} size="small">Continue</Button>;
+            }
+            return <Button onClick={handleView} size="small">View</Button>;
         case VariantStatus.PASSED:
         case VariantStatus.FAILED:
         case VariantStatus.EXPIRED:
@@ -59,13 +74,16 @@ const VariantActions: FC<{ variant: IVariantRecord }> = ({variant}) => {
 }
 
 const Variant: FC<{ variant: IVariantRecord }> = ({variant}) => {
-    const time = moment.duration(variant.time, "minutes");
+    const time = variant.time > 0 ? moment.duration(variant.time, "minutes") : null;
+    const showTimer = variant.end && variant.status === VariantStatus.STARTED && Date.parse(variant.end) > Date.now();
     return (
         <Card>
             <CardHeader title={`Variant #${variant.id}`} subheader={variant.status}/>
             <CardContent>
-                <Line label="Time">{time.humanize()}</Line>
-                {variant.end && variant.status === VariantStatus.STARTED && (
+                {!showTimer && time && (
+                    <Line label="Time">{time.humanize()}</Line>
+                )}
+                {showTimer && (
                     <Line label="Time left"><Countdown format={"hh:mm:ss"} durationFromNow date={variant.end} interval={1000}/></Line>
                 )}
                 <Line label="Allowed errors">{(variant.errors === -1) ? "Unlimited" : variant.errors}</Line>
@@ -86,7 +104,7 @@ const Line: FC<{ label: string }> = ({label, children}) => {
     )
 }
 
-const TrainingInformation: FC<{ training: ITrainingRecord }> = ({training}) => {
+const TrainingInformation: FC<{ training: ITestRecord }> = ({training}) => {
     return (
         <Card>
             <CardHeader title={`Test #${training.id}`} subheader={training.type}/>
@@ -103,7 +121,7 @@ const TrainingInformation: FC<{ training: ITrainingRecord }> = ({training}) => {
     )
 }
 
-const ChaptersInformation: FC<{ training: ITrainingRecord }> = ({training}) => {
+const ChaptersInformation: FC<{ training: ITestRecord }> = ({training}) => {
     if (!training.chapters || training.chapters.length === 0) {
         return null
     }
@@ -121,7 +139,7 @@ const ChaptersInformation: FC<{ training: ITrainingRecord }> = ({training}) => {
         </Card>
     )
 }
-const SectionsInformation: FC<{ training: ITrainingRecord }> = ({training}) => {
+const SectionsInformation: FC<{ training: ITestRecord }> = ({training}) => {
     if (!training.sections || training.sections.length === 0) {
         return null
     }
@@ -141,7 +159,7 @@ const SectionsInformation: FC<{ training: ITrainingRecord }> = ({training}) => {
 }
 
 
-const Variants: FC<{ training: ITrainingRecord }> = ({training}) => {
+const Variants: FC<{ training: ITestRecord }> = ({training}) => {
     if (!training.variants || training.variants.length === 0) {
         return null
     }
@@ -154,7 +172,7 @@ const Variants: FC<{ training: ITrainingRecord }> = ({training}) => {
         </Grid>
     )
 }
-const PageBreadcrumbs: FC<{ training: ITrainingRecord }> = ({training}) => {
+const PageBreadcrumbs: FC<{ training: ITestRecord }> = ({training}) => {
     // TODO move to Breadcrumbs component.
     return (
         <Box m={2} px={2}>
@@ -166,7 +184,7 @@ const PageBreadcrumbs: FC<{ training: ITrainingRecord }> = ({training}) => {
         </Box>
     );
 }
-const Component: FC<{ training: ITrainingRecord }> = ({training}) => {
+const Component: FC<{ training: ITestRecord }> = ({training}) => {
     return (
         <Box component="main">
             <Container>
