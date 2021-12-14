@@ -1,7 +1,6 @@
 import React, {FC, useState} from "react";
 import Moment from "react-moment";
 import {
-    Box,
     Button,
     ButtonGroup,
     Container,
@@ -15,8 +14,7 @@ import {
     TableRow
 } from "@mui/material";
 import {useAsync} from "react-async-hook";
-import {useServiceContainer, useUser} from "../Contexts";
-import {Backend} from "../Api";
+import {useApi, useUser} from "../Contexts";
 import {ILoggedUser} from "../Models";
 import {ITestRecord, TestStatus} from "../Api/Backend";
 import {SectionForm} from "./SectionForm";
@@ -56,7 +54,7 @@ const Training: FC<{ training: ITestRecord }> = ({training}) => {
 }
 
 const Trainings: FC<{ update: string }> = ({update}) => {
-    const api = useServiceContainer().resolve<Backend.Api>("backendApi");
+    const api = useApi();
     const {user} = useUser();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const callback = async (id: number, update: string) => await api.getTrainings(id);

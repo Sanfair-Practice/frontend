@@ -5,12 +5,12 @@ import MuiPhoneNumber from "material-ui-phone-number";
 import * as Yup from "yup";
 import {useFormik, FormikErrors} from "formik";
 import {Backend} from "../Api"
-import {useServiceContainer, useUser} from "../Contexts";
+import {useApi, useUser} from "../Contexts";
 import {LoggedUser} from "../Models";
 import {Router} from "../Helpers";
 
 export const SignUp: FC = () => {
-    const api: Backend.Api = useServiceContainer().resolve<Backend.Api>("backendApi");
+    const api = useApi();
     const {setUser} = useUser();
     const formik = useFormik<Backend.IRegistrationProfile>({
         initialValues: {

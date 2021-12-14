@@ -1,5 +1,5 @@
 import React, {FC} from "react";
-import {useServiceContainer, useUser} from "../Contexts";
+import {useApi, useUser} from "../Contexts";
 import {useAsync} from "react-async-hook";
 import {Backend} from "../Api";
 import {
@@ -31,7 +31,7 @@ interface IForm extends ISubmit {
 }
 
 const Form: FC<IForm> = ({chapters, onSubmit}) => {
-    const api = useServiceContainer().resolve<Backend.Api>("backendApi");
+    const api = useApi();
     const {user} = useUser();
     const formik = useFormik<{ chapter: string }>({
         initialValues: {
@@ -73,7 +73,7 @@ const Form: FC<IForm> = ({chapters, onSubmit}) => {
 }
 
 export const ChapterForm: FC<ISubmit> = ({onSubmit}) => {
-    const api = useServiceContainer().resolve<Backend.Api>("backendApi");
+    const api = useApi();
     const callback = async () => await api.getChapters();
     const chapters = useAsync(callback, []);
     if (chapters.loading) {

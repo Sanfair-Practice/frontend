@@ -1,6 +1,5 @@
 import React, {FC} from "react";
-import {useServiceContainer, useUser} from "../Contexts";
-import {Backend} from "../Api";
+import {useApi, useUser} from "../Contexts";
 import {useAsync} from "react-async-hook";
 import {ILoggedUser} from "../Models";
 import {Link as RouteLink, useNavigate, useParams} from "react-router-dom";
@@ -43,7 +42,7 @@ const Chapter: FC<{ chapter: IChapterRecord }> = ({chapter}) => {
 
 const VariantActions: FC<{ variant: IVariantRecord }> = ({variant}) => {
     const navigate = useNavigate();
-    const api = useServiceContainer().resolve<Backend.Api>("backendApi");
+    const api = useApi();
     const {user} = useUser();
     const handleStart = async () => {
         const record = await api.startVariant((user as ILoggedUser).id, variant.test.id, variant.id);
@@ -208,7 +207,7 @@ const Component: FC<{ training: ITestRecord }> = ({training}) => {
 
 export const Training: FC = () => {
     const {training: id} = useParams<"training">()
-    const api = useServiceContainer().resolve<Backend.Api>("backendApi");
+    const api = useApi();
     const {user} = useUser();
     const callback = async (user: number, training: string | undefined) => {
         return training !== undefined ? await api.getTraining(user, +training) : null;

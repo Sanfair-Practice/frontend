@@ -4,6 +4,7 @@ import ESLintPlugin from "eslint-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import path from "path";
+import DotenvWebpackPlugin from "dotenv-webpack";
 
 const config: Configuration = {
   mode: "production",
@@ -35,6 +36,9 @@ const config: Configuration = {
     extensions: [".tsx", ".ts", ".js"],
   },
   plugins: [
+    new DotenvWebpackPlugin({
+      safe: true,
+    }),
     new HtmlWebpackPlugin({
       template: "src/index.html",
     }),

@@ -3,14 +3,13 @@ import React, {FC} from "react";
 import {Link as RouteLink} from "react-router-dom";
 import {useFormik} from "formik";
 import * as Yup from "yup";
-import {Backend} from "../Api"
-import {useServiceContainer} from "../Contexts";
+import {useApi} from "../Contexts";
 import {LoggedUser} from "../Models";
 import {useUser} from "../Contexts";
 import {Router} from "../Helpers";
 
 export const SignIn: FC = () => {
-    const api: Backend.Api = useServiceContainer().resolve<Backend.Api>("backendApi");
+    const api = useApi();
     const {setUser} = useUser();
     const formik = useFormik({
         initialValues: {

@@ -1,15 +1,15 @@
 import {App} from "./Components/App";
 import React from "react";
 import ReactDOM from "react-dom";
-import {ServiceContainerProvider, UserProvider} from "./Contexts";
+import {ApiProvider, UserProvider} from "./Contexts";
 
 ReactDOM.render(
     <React.StrictMode>
-        <ServiceContainerProvider>
+        <ApiProvider>
             <UserProvider>
                 <App/>
             </UserProvider>
-        </ServiceContainerProvider>
+        </ApiProvider>
     </React.StrictMode>,
     document.getElementById("root")
 );

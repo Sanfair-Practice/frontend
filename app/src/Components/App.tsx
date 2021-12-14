@@ -8,8 +8,7 @@ import {BrowserRouter as Router} from "react-router-dom";
 import {Authenticated, Guest} from "./Auth"
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 import {Navigation} from "./Navigation";
-import {useServiceContainer, useUser} from "../Contexts";
-import {Backend} from "../Api";
+import {useApi, useUser} from "../Contexts";
 import {Router as AppRouter} from "../Helpers";
 import {Training} from "../Pages/Training";
 import {Variant} from "../Pages/Variant";
@@ -25,7 +24,7 @@ const theme = createTheme({
 
 export const App: FC = () => {
     const {user} = useUser();
-    const api = useServiceContainer().resolve<Backend.Api>("backendApi");
+    const api = useApi();
     api.updateAuthorization(user?.token);
 
     return (

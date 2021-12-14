@@ -2,8 +2,7 @@ import React, {FC, Fragment, useEffect, useState} from "react";
 import {Link as RouteLink, Navigate, useParams} from "react-router-dom";
 import {NotFound} from "./NotFound";
 import {IQuestionRecord, IVariantInput, IVariantRecord, TestStatus, VariantStatus} from "../Api/Backend";
-import {useServiceContainer, useUser} from "../Contexts";
-import {Backend} from "../Api";
+import {useApi, useUser} from "../Contexts";
 import {useAsync} from "react-async-hook";
 import {ILoggedUser} from "../Models";
 import {Router} from "../Helpers";
@@ -333,7 +332,7 @@ const PageBreadcrumbs: FC<{ variant: IVariantRecord }> = ({variant}) => {
 
 const AsyncPage: FC<{ trainingId: number, variantId: number }> = ({trainingId, variantId}) => {
     const {user} = useUser();
-    const api = useServiceContainer().resolve<Backend.Api>("backendApi");
+    const api = useApi();
     const callback = async (user: number, training: number, variant: number) => {
         return api.getVariant(user, training, variant);
     };
