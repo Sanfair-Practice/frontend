@@ -8,7 +8,7 @@ import {BrowserRouter as Router} from "react-router-dom";
 import {Authenticated, Guest} from "./Auth"
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 import {Navigation} from "./Navigation";
-import {useApi, useUser} from "../Contexts";
+import {ApiProvider, useApi, UserProvider, useUser} from "../Contexts";
 import {Router as AppRouter} from "../Helpers";
 import {Training} from "../Pages/Training";
 import {Variant} from "../Pages/Variant";
@@ -30,21 +30,25 @@ export const App: FC = () => {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline/>
-            <Router>
-                <Navigation/>
-                <Routes>
-                    <Route element={<Authenticated/>}>
-                        <Route path={AppRouter.routes.HOME} element={<Home/>}/>
-                        <Route path={AppRouter.routes.TRAINING} element={<Training/>}/>
-                        <Route path={AppRouter.routes.VARIANT} element={<Variant/>}/>
-                    </Route>
-                    <Route element={<Guest/>}>
-                        <Route path={AppRouter.routes.SIGN_IN} element={<SignIn/>}/>
-                        <Route path={AppRouter.routes.SIGN_UP} element={<SignUp/>}/>
-                    </Route>
-                    <Route path={AppRouter.routes.NOT_FOUND} element={<NotFound/>}/>
-                </Routes>
-            </Router>
+            <ApiProvider>
+                <UserProvider>
+                    <Router>
+                        <Navigation/>
+                        <Routes>
+                            <Route element={<Authenticated/>}>
+                                <Route path={AppRouter.routes.HOME} element={<Home/>}/>
+                                <Route path={AppRouter.routes.TRAINING} element={<Training/>}/>
+                                <Route path={AppRouter.routes.VARIANT} element={<Variant/>}/>
+                            </Route>
+                            <Route element={<Guest/>}>
+                                <Route path={AppRouter.routes.SIGN_IN} element={<SignIn/>}/>
+                                <Route path={AppRouter.routes.SIGN_UP} element={<SignUp/>}/>
+                            </Route>
+                            <Route path={AppRouter.routes.NOT_FOUND} element={<NotFound/>}/>
+                        </Routes>
+                    </Router>
+                </UserProvider>
+            </ApiProvider>
         </ThemeProvider>
 
     )

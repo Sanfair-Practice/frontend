@@ -6,9 +6,12 @@ export interface IUserRecord {
     readonly email: string
 }
 
-export interface ILoggedUserRecord extends IUserRecord {
+export interface IAuthenticatable {
+    readonly id: number,
     readonly token: string
 }
+
+export type LoggedUser = IUserRecord & IAuthenticatable;
 
 export interface ILoginProfile {
     readonly email: string

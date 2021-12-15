@@ -1,13 +1,12 @@
 import React, {FC} from "react";
 import {useApi, useUser} from "../Contexts";
 import {useAsync} from "react-async-hook";
-import {ILoggedUser} from "../Models";
 import {Link as RouteLink, useNavigate, useParams} from "react-router-dom";
 import {
     IChapterRecord,
     ISectionRecord,
     ITestRecord,
-    IVariantRecord,
+    IVariantRecord, LoggedUser,
     TestStatus,
     VariantStatus
 } from "../Api/Backend";
@@ -45,7 +44,7 @@ const VariantActions: FC<{ variant: IVariantRecord }> = ({variant}) => {
     const api = useApi();
     const {user} = useUser();
     const handleStart = async () => {
-        const record = await api.startVariant((user as ILoggedUser).id, variant.test.id, variant.id);
+        const record = await api.startVariant((user as LoggedUser).id, variant.test.id, variant.id);
         navigate(Router.linkVariant(record.test.id, record.id));
     }
     const handleView = () => {
@@ -212,7 +211,7 @@ export const Training: FC = () => {
     const callback = async (user: number, training: string | undefined) => {
         return training !== undefined ? await api.getTraining(user, +training) : null;
     };
-    const training = useAsync(callback, [(user as ILoggedUser).id, id]);
+    const training = useAsync(callback, [(user as LoggedUser).id, id]);
 
     if (training.loading) {
         return <>Loading ...</>;

@@ -1,7 +1,6 @@
 import React, {FC} from "react";
 import {useApi, useUser} from "../Contexts";
 import {useAsync} from "react-async-hook";
-import {Backend} from "../Api";
 import {
     Box,
     Button,
@@ -16,18 +15,18 @@ import {
 } from "@mui/material";
 import {useFormik} from "formik";
 import * as Yup from "yup";
-import {ILoggedUser} from "../Models";
+import {ISectionRecord, ITestRecord, LoggedUser} from "../Api/Backend";
 
 const Checkbox: FC<{ label: string } & CheckboxProps> = ({label, ...props}) => {
     return <FormControlLabel control={<MuiCheckbox {...props}/>} label={label}/>
 }
 
 interface ISubmit {
-    onSubmit: (record: Backend.ITestRecord) => void
+    onSubmit: (record: ITestRecord) => void
 }
 
 interface IForm extends ISubmit {
-    sections: Array<Backend.ISectionRecord>,
+    sections: Array<ISectionRecord>,
 }
 
 const Form: FC<IForm> = ({sections, onSubmit}) => {
@@ -41,7 +40,7 @@ const Form: FC<IForm> = ({sections, onSubmit}) => {
             sections: Yup.array().min(1),
         }),
         onSubmit: async (values) => {
-            const record = await api.createTrainingForSections((user as ILoggedUser).id, values.sections);
+            const record = await api.createTrainingForSections((user as LoggedUser).id, values.sections);
             onSubmit(record);
         }
     });

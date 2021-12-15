@@ -2,10 +2,10 @@ import axios, {AxiosInstance} from "axios";
 import {
     IChapterRecord,
     ILoginProfile,
-    ILoggedUserRecord,
+    LoggedUser,
     IUserRecord,
     IRegistrationProfile, ISectionRecord,
-    ITestRecord, IVariantRecord
+    ITestRecord, IVariantRecord, IAuthenticatable
 } from "./types";
 
 export class ValidationError extends Error {
@@ -91,7 +91,7 @@ export class Api {
         return response.data.data;
     }
 
-    public async register(profile: IRegistrationProfile): Promise<ILoggedUserRecord> {
+    public async register(profile: IRegistrationProfile): Promise<LoggedUser> {
         try {
             const response = await this.httpClient.post("/api/register", {
                 first_name: profile.first_name,
@@ -113,7 +113,7 @@ export class Api {
         }
     }
 
-    public async login(profile: ILoginProfile): Promise<ILoggedUserRecord> {
+    public async login(profile: ILoginProfile): Promise<LoggedUser> {
         const response = await this.httpClient.post("/api/login", {
             email: profile.email,
             password: profile.password,
@@ -122,9 +122,20 @@ export class Api {
         return response.data.data;
     }
 
-    public async status(): Promise<ILoggedUserRecord> {
-        const response = await this.httpClient.get("/api/login");
-        return response.data.data;
+    public async authenticate(user: IAuthenticatable): Promise<LoggedUser|undefined>
+    {
+        try {
+            this.updateAuthorization(user.token);
+            const record = await this.getUser(user.id);
+            return {...user, ...record};
+        }
+        catch (e) {
+            if (axios.isAxiosError(e) && e.response?.status === 401) {
+                this.updateAuthorization(undefined);
+                return undefined;
+            }
+            throw e;
+        }
     }
 
     public async getUser(id: number): Promise<IUserRecord> {

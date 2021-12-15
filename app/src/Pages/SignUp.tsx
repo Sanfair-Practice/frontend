@@ -4,15 +4,14 @@ import {Link as RouteLink} from "react-router-dom";
 import MuiPhoneNumber from "material-ui-phone-number";
 import * as Yup from "yup";
 import {useFormik, FormikErrors} from "formik";
-import {Backend} from "../Api"
 import {useApi, useUser} from "../Contexts";
-import {LoggedUser} from "../Models";
 import {Router} from "../Helpers";
+import {IRegistrationProfile, ValidationError} from "../Api/Backend";
 
 export const SignUp: FC = () => {
     const api = useApi();
     const {setUser} = useUser();
-    const formik = useFormik<Backend.IRegistrationProfile>({
+    const formik = useFormik<IRegistrationProfile>({
         initialValues: {
             first_name: "",
             last_name: "",
@@ -54,13 +53,12 @@ export const SignUp: FC = () => {
         onSubmit: async (values, actions) => {
             try {
                 const record = await api.register(values);
-                const user = LoggedUser.fromRecord(record);
-                setUser(user);
+                setUser(record);
             } catch (e) {
-                if (! (e instanceof Backend.ValidationError)) {
+                if (! (e instanceof ValidationError)) {
                     throw e
                 }
-                actions.setErrors((e.errors as FormikErrors<Backend.IRegistrationProfile>));
+                actions.setErrors((e.errors as FormikErrors<IRegistrationProfile>));
 
             }
         }

@@ -15,8 +15,7 @@ import {
 } from "@mui/material";
 import {useAsync} from "react-async-hook";
 import {useApi, useUser} from "../Contexts";
-import {ILoggedUser} from "../Models";
-import {ITestRecord, TestStatus} from "../Api/Backend";
+import {ITestRecord, LoggedUser, TestStatus} from "../Api/Backend";
 import {SectionForm} from "./SectionForm";
 import {ChapterForm} from "./ChapterForm";
 import {CustomForm} from "./CustomForm";
@@ -58,7 +57,7 @@ const Trainings: FC<{ update: string }> = ({update}) => {
     const {user} = useUser();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const callback = async (id: number, update: string) => await api.getTrainings(id);
-    const trainings = useAsync(callback, [(user as ILoggedUser).id, update]);
+    const trainings = useAsync(callback, [(user as LoggedUser).id, update]);
 
     let content;
     if (trainings.loading) {

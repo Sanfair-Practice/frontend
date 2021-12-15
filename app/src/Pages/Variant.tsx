@@ -1,10 +1,9 @@
 import React, {FC, Fragment, useEffect, useState} from "react";
 import {Link as RouteLink, Navigate, useParams} from "react-router-dom";
 import {NotFound} from "./NotFound";
-import {IQuestionRecord, IVariantInput, IVariantRecord, TestStatus, VariantStatus} from "../Api/Backend";
+import {IQuestionRecord, IVariantInput, IVariantRecord, LoggedUser, TestStatus, VariantStatus} from "../Api/Backend";
 import {useApi, useUser} from "../Contexts";
 import {useAsync} from "react-async-hook";
-import {ILoggedUser} from "../Models";
 import {Router} from "../Helpers";
 import {
     Box,
@@ -336,10 +335,10 @@ const AsyncPage: FC<{ trainingId: number, variantId: number }> = ({trainingId, v
     const callback = async (user: number, training: number, variant: number) => {
         return api.getVariant(user, training, variant);
     };
-    const result = useAsync(callback, [(user as ILoggedUser).id, trainingId, variantId]);
+    const result = useAsync(callback, [(user as LoggedUser).id, trainingId, variantId]);
     const handleAnswer: AnswerCallback = async (question, answer) => {
         const record = await api.answerQuestion({
-            user: (user as ILoggedUser).id,
+            user: (user as LoggedUser).id,
             training: trainingId,
             variant: variantId,
             question: question.id,

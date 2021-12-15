@@ -1,40 +1,62 @@
 import React, {FC, useState} from "react";
-import {ILoggedUser, LoggedUser} from "../Models";
+import {useApi} from "./Api";
+import {IAuthenticatable, LoggedUser} from "../Api/Backend";
+import {ModalLoader} from "../Components/Loader";
+import {Typography} from "@mui/material";
 
 interface IUserContextType {
-    user: ILoggedUser|undefined,
-    setUser(user: ILoggedUser|undefined): void
+    user: LoggedUser | undefined,
+
+    setUser(user: LoggedUser | undefined): void
 }
 
 const UserContext = React.createContext<IUserContextType>({
     user: undefined,
-    setUser: (user: ILoggedUser | undefined) => {console.log(user)}
+    setUser: () => {
+        //
+    }
 });
 
-export const useUser = (): IUserContextType => React.useContext(UserContext) ;
+export const useUser = (): IUserContextType => React.useContext(UserContext);
 
-export const UserProvider: FC = ({ children}) => {
-    const getUser = () => {
-        const data = localStorage.getItem("user");
-        return LoggedUser.fromJson(data);
-    };
+export const UserProvider: FC = ({children}) => {
+    const [user, setUser] = useState<LoggedUser | undefined>();
+    const [loading, setLoading] = useState(() => !!localStorage.getItem("user"));
+    const api = useApi();
 
-    const [user, setUser] = useState<ILoggedUser|undefined>(getUser);
-
-
-    const saveUser = (user: ILoggedUser|undefined) => {
+    const saveUser = (user: LoggedUser | undefined) => {
         if (user) {
-            localStorage.setItem("user", user.toString())
+            localStorage.setItem("user", JSON.stringify({id: user.id, token: user.token}))
         } else {
             localStorage.removeItem("user")
         }
         setUser(user);
     };
 
-    const value: IUserContextType = {user, setUser: saveUser};
+    // Authenticate user from storage.
+    React.useEffect(() => {
+        const data = localStorage.getItem("user");
+        if (data) {
+            setLoading(true);
+            const storedUser: IAuthenticatable = JSON.parse(data);
+            api.authenticate(storedUser)
+                .then(setUser)
+                .catch(() => saveUser(undefined))
+                .finally(() => setLoading(false));
+        }
+    }, [api]);
+
+    if (loading) {
+        return (
+            <ModalLoader fullHeight>
+                <Typography variant="body2" color="text.secondary">User authentication</Typography>
+                <Typography variant="body2" color="text.secondary">Please wait a few seconds...</Typography>
+            </ModalLoader>
+        )
+    }
 
     return (
-        <UserContext.Provider value={value}>
+        <UserContext.Provider value={{user, setUser: saveUser}}>
             {children}
         </UserContext.Provider>
     )

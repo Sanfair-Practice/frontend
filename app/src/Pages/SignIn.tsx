@@ -4,7 +4,6 @@ import {Link as RouteLink} from "react-router-dom";
 import {useFormik} from "formik";
 import * as Yup from "yup";
 import {useApi} from "../Contexts";
-import {LoggedUser} from "../Models";
 import {useUser} from "../Contexts";
 import {Router} from "../Helpers";
 
@@ -31,8 +30,7 @@ export const SignIn: FC = () => {
             try {
 
                 const record = await api.login(values);
-                const user = LoggedUser.fromRecord(record);
-                setUser(user);
+                setUser(record);
             } catch (e) {
                 console.error(e);
             }

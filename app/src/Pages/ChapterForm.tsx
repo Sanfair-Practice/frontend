@@ -1,7 +1,6 @@
 import React, {FC} from "react";
 import {useApi, useUser} from "../Contexts";
 import {useAsync} from "react-async-hook";
-import {Backend} from "../Api";
 import {
     Box,
     Button,
@@ -16,18 +15,18 @@ import {
 } from "@mui/material";
 import {useFormik} from "formik";
 import * as Yup from "yup";
-import {ILoggedUser} from "../Models";
+import {IChapterRecord, ITestRecord, LoggedUser} from "../Api/Backend";
 
 const Radio: FC<{ label: string } & RadioProps> = ({label, ...props}) => {
     return <FormControlLabel control={<MuiRadio {...props}/>} label={label}/>
 }
 
 interface ISubmit {
-    onSubmit: (record: Backend.ITestRecord) => void
+    onSubmit: (record: ITestRecord) => void
 }
 
 interface IForm extends ISubmit {
-    chapters: Array<Backend.IChapterRecord>,
+    chapters: Array<IChapterRecord>,
 }
 
 const Form: FC<IForm> = ({chapters, onSubmit}) => {
@@ -41,7 +40,7 @@ const Form: FC<IForm> = ({chapters, onSubmit}) => {
             chapter: Yup.string().required(),
         }),
         onSubmit: async (values) => {
-            const record = await api.createTrainingForChapters((user as ILoggedUser).id, [values.chapter]);
+            const record = await api.createTrainingForChapters((user as LoggedUser).id, [values.chapter]);
             onSubmit(record);
         }
     });
