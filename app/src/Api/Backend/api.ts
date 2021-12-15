@@ -138,13 +138,17 @@ export class Api {
         }
     }
 
+    public authorize(user: IAuthenticatable| undefined): void {
+        this.updateAuthorization(user?.token);
+    }
+
     public async getUser(id: number): Promise<IUserRecord> {
         const response = await this.httpClient.get(`/api/user/${id}`);
         return response.data.data as IUserRecord;
     }
 
 
-    public updateAuthorization(token: string|undefined): void {
+    private updateAuthorization(token: string|undefined): void {
         if (token) {
             this.httpClient.defaults.headers.common.Authorization = `Bearer ${token}`;
         }

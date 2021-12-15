@@ -20,13 +20,37 @@ const theme = createTheme({
             default: "#e8e8e8"
         }
     },
+    components: {
+        MuiCssBaseline: {
+            styleOverrides: {
+                html: {
+                    MozOsxFontSmoothing: "grayscale",
+                    WebkitFontSmoothing: "antialiased",
+                    display: "flex",
+                    flexDirection: "column",
+                    minHeight: "100%",
+                    width: "100%"
+                },
+                body: {
+                    display: "flex",
+                    flex: "1 1 auto",
+                    flexDirection: "column",
+                    minHeight: "100%",
+                    width: "100%"
+                },
+                "#root": {
+                    display: "flex",
+                    flex: "1 1 auto",
+                    flexDirection: "column",
+                    height: "100%",
+                    width: "100%"
+                }
+            }
+        },
+    }
 });
 
 export const App: FC = () => {
-    const {user} = useUser();
-    const api = useApi();
-    api.updateAuthorization(user?.token);
-
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline/>

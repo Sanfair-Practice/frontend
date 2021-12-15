@@ -1,6 +1,6 @@
 import {Box, Button, Container, Link, Paper, TextField, Typography} from "@mui/material";
 import React, {FC} from "react";
-import {Link as RouteLink} from "react-router-dom";
+import {Link as RouteLink, useLocation, useNavigate} from "react-router-dom";
 import {useFormik} from "formik";
 import * as Yup from "yup";
 import {useApi} from "../Contexts";
@@ -10,6 +10,8 @@ import {Router} from "../Helpers";
 export const SignIn: FC = () => {
     const api = useApi();
     const {setUser} = useUser();
+    const location = useLocation();
+    const navigate = useNavigate();
     const formik = useFormik({
         initialValues: {
             email: "",
@@ -31,6 +33,9 @@ export const SignIn: FC = () => {
 
                 const record = await api.login(values);
                 setUser(record);
+                if (location.pathname === Router.linkSignIn()) {
+                    navigate(Router.linkHome());
+                }
             } catch (e) {
                 console.error(e);
             }

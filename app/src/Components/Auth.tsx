@@ -1,12 +1,13 @@
 import React, {FC} from "react";
 import {useUser} from "../Contexts";
-import {Navigate, Outlet} from "react-router";
-import {Router} from "../Helpers"
+import {Outlet} from "react-router";
+import {AccessDenied} from "../Pages/AccessDenied";
+import {SignIn} from "../Pages/SignIn";
 
 export const Authenticated: FC = () => {
     const {user} = useUser();
     if (!user) {
-        return <Navigate to={Router.linkSignIn()}/>
+        return <SignIn />
     }
 
     return <Outlet />;
@@ -14,7 +15,7 @@ export const Authenticated: FC = () => {
 export const Guest: FC = () => {
     const {user} = useUser();
     if (user) {
-        return <Navigate to={Router.linkHome()}/>
+        return <AccessDenied />
     }
 
     return <Outlet />;

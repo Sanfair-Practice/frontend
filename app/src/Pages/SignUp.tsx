@@ -1,6 +1,6 @@
 import {Box, Button, Container, Link, Paper, TextField, Typography} from "@mui/material";
 import React, {FC} from "react";
-import {Link as RouteLink} from "react-router-dom";
+import {Link as RouteLink, useNavigate} from "react-router-dom";
 import MuiPhoneNumber from "material-ui-phone-number";
 import * as Yup from "yup";
 import {useFormik, FormikErrors} from "formik";
@@ -11,6 +11,7 @@ import {IRegistrationProfile, ValidationError} from "../Api/Backend";
 export const SignUp: FC = () => {
     const api = useApi();
     const {setUser} = useUser();
+    const navigate = useNavigate();
     const formik = useFormik<IRegistrationProfile>({
         initialValues: {
             first_name: "",
@@ -54,6 +55,7 @@ export const SignUp: FC = () => {
             try {
                 const record = await api.register(values);
                 setUser(record);
+                navigate(Router.linkHome());
             } catch (e) {
                 if (! (e instanceof ValidationError)) {
                     throw e

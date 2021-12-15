@@ -1,4 +1,4 @@
-import React, {FC, useState} from "react";
+import React, {FC, useCallback, useState} from "react";
 import {useApi} from "./Api";
 import {IAuthenticatable, LoggedUser} from "../Api/Backend";
 import {ModalLoader} from "../Components/Loader";
@@ -24,14 +24,15 @@ export const UserProvider: FC = ({children}) => {
     const [loading, setLoading] = useState(() => !!localStorage.getItem("user"));
     const api = useApi();
 
-    const saveUser = (user: LoggedUser | undefined) => {
+    const saveUser = useCallback((user: LoggedUser | undefined) => {
         if (user) {
             localStorage.setItem("user", JSON.stringify({id: user.id, token: user.token}))
         } else {
             localStorage.removeItem("user")
         }
         setUser(user);
-    };
+        api.authorize(user);
+    }, [api]);
 
     // Authenticate user from storage.
     React.useEffect(() => {
@@ -44,7 +45,7 @@ export const UserProvider: FC = ({children}) => {
                 .catch(() => saveUser(undefined))
                 .finally(() => setLoading(false));
         }
-    }, [api]);
+    }, [api, saveUser]);
 
     if (loading) {
         return (
