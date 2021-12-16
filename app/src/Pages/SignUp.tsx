@@ -55,7 +55,7 @@ export const SignUp: FC = () => {
             try {
                 const record = await api.register(values);
                 setUser(record);
-                navigate(Router.linkHome());
+                navigate(Router.linkHome(), {replace: true});
             } catch (e) {
                 if (! (e instanceof ValidationError)) {
                     throw e

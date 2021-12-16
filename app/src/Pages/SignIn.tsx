@@ -34,7 +34,7 @@ export const SignIn: FC = () => {
                 const record = await api.login(values);
                 setUser(record);
                 if (location.pathname === Router.linkSignIn()) {
-                    navigate(Router.linkHome());
+                    navigate(Router.linkHome(), {replace: true});
                 }
             } catch (e) {
                 console.error(e);
