@@ -6,6 +6,7 @@ import * as Yup from "yup";
 import {useApi} from "../Contexts";
 import {useUser} from "../Contexts";
 import {Router} from "../Helpers";
+import axios from "axios";
 
 export const SignIn: FC = () => {
     const api = useApi();
@@ -30,14 +31,15 @@ export const SignIn: FC = () => {
         }),
         onSubmit: async (values) => {
             try {
-
                 const record = await api.login(values);
                 setUser(record);
                 if (location.pathname === Router.linkSignIn()) {
                     navigate(Router.linkHome(), {replace: true});
                 }
             } catch (e) {
-                console.error(e);
+                if (axios.isAxiosError(e) && e.response?.status === 401) {
+                    formik.setFieldError("email", "You have entered an invalid username or password");
+                }
             }
         }
     });
