@@ -8,7 +8,7 @@ import {BrowserRouter as Router} from "react-router-dom";
 import {Authenticated, Guest} from "./Auth"
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 import {Navigation} from "./Navigation";
-import {ApiProvider, useApi, UserProvider, useUser} from "../Contexts";
+import {ApiProvider, UserProvider} from "../Contexts";
 import {Router as AppRouter} from "../Helpers";
 import {Training} from "../Pages/Training";
 import {Variant} from "../Pages/Variant";

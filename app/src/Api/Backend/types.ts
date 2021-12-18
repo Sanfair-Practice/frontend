@@ -36,6 +36,8 @@ export enum TestStatus {
     EXPIRED = "expired",
 }
 
+export const CompletedTestStatuses = [TestStatus.PASSED, TestStatus.FAILED, TestStatus.EXPIRED];
+
 export interface ITestRecord {
     readonly id: number,
     readonly errors: number,
@@ -68,6 +70,8 @@ export enum VariantStatus {
     EXPIRED = "expired",
 }
 
+export const CompletedVariantStatuses = [VariantStatus.PASSED, VariantStatus.FAILED, VariantStatus.EXPIRED];
+
 export interface IVariantRecord {
     readonly id: number,
     readonly time: number,
@@ -85,10 +89,12 @@ export interface IVariantInput {
     readonly value: string,
 }
 
+export type Choices = Record<string, string>;
+
 export interface IQuestionRecord {
     readonly id: number,
     readonly text: string,
     readonly rules: string,
     readonly explanation: string,
-    readonly choices: Record<string, string>
+    readonly choices: Choices
 }

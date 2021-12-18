@@ -1,5 +1,5 @@
 import React, {FC} from "react";
-import {CircularProgress, Modal, Stack} from "@mui/material";
+import {Box, CircularProgress, Stack} from "@mui/material";
 
 export interface LoaderProps {
     fullHeight?: boolean
@@ -21,8 +21,8 @@ export const Loader: FC<LoaderProps> = ({fullHeight, children}) => {
 
 export const ModalLoader: FC<LoaderProps> = (props) => {
     return (
-        <Modal open={true} hideBackdrop>
+        <Box position="fixed" width="100%" height="100%" zIndex={1000}>
             <Loader {...props}/>
-        </Modal>
+        </Box>
     )
 }
