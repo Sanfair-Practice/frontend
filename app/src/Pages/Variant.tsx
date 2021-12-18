@@ -466,11 +466,8 @@ const Page: FC<PageProps> = ({user, training_id, variant_id}) => {
     }, [result]);
 
 
-    if (!result.result) {
-        return <NotFound/>
-    }
-
     let content = <NotFound/>;
+
     if (result.loading) {
         content = (
             <Loader>
