@@ -1,4 +1,4 @@
-import React, {FC} from "react";
+import React, {FC, useEffect} from "react";
 import {useApi, useUser} from "../Contexts";
 import {useAsync} from "react-async-hook";
 import {
@@ -16,6 +16,9 @@ import {
 import {useFormik} from "formik";
 import * as Yup from "yup";
 import {ISectionRecord, ITestRecord, LoggedUser} from "../Api/Backend";
+import {useDispatch, useSelector} from "react-redux";
+import {selectAll, selectError, selectStatus} from "../Redux/Sections";
+import {fetchChapters, Status} from "../Redux/Chapters";
 
 const Checkbox: FC<{ label: string } & CheckboxProps> = ({label, ...props}) => {
     return <FormControlLabel control={<MuiCheckbox {...props}/>} label={label}/>
@@ -72,18 +75,26 @@ const Form: FC<IForm> = ({sections, onSubmit}) => {
 }
 
 export const CustomForm: FC<ISubmit> = ({onSubmit}) => {
-    const api = useApi();
-    const callback = async () => await api.getSections();
-    const sections = useAsync(callback, []);
-    if (sections.loading) {
+    const dispatch = useDispatch()
+    const sections = useSelector(selectAll);
+    const status = useSelector(selectStatus);
+    const error = useSelector(selectError);
+
+    useEffect(() => {
+        if (status === Status.IDLE) {
+            dispatch(fetchChapters())
+        }
+    }, [status, dispatch]);
+
+    if (status === Status.LOADING) {
         return <>Loading ...</>;
     }
-    if (sections.error) {
-        return <>Error: {sections.error}</>
+    if (status === Status.FAILED) {
+        return <>Error: {error}</>
     }
-    if (!sections.result || sections.result.length === 0) {
+    if (sections.length === 0) {
         return <>No sections</>
     }
 
-    return <Form sections={sections.result} onSubmit={onSubmit}/>
+    return <Form sections={sections} onSubmit={onSubmit}/>
 }

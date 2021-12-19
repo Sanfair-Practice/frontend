@@ -48,8 +48,8 @@ const chapterSlice = createSlice({
     }
 })
 
-export const selectAllChapters = (state: CombinedState<{chapters: State}>): IChapterRecord[] => state.chapters.chapters;
-export const chapterSliceStatus = (state: CombinedState<{chapters: State}>): Status => state.chapters.status;
-export const chapterSliceError = (state: CombinedState<{chapters: State}>): string | undefined => state.chapters.error;
+export const selectAll = (state: CombinedState<{chapters: State}>): IChapterRecord[] => state.chapters.chapters;
+export const selectStatus = (state: CombinedState<{chapters: State}>): Status => state.chapters.status;
+export const selectError = (state: CombinedState<{chapters: State}>): string | undefined => state.chapters.error;
 
 export default chapterSlice.reducer

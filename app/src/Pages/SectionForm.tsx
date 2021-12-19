@@ -1,6 +1,5 @@
-import React, {FC} from "react";
+import React, {FC, useEffect} from "react";
 import {useApi, useUser} from "../Contexts";
-import {useAsync} from "react-async-hook";
 import {
     Box,
     Button,
@@ -16,6 +15,8 @@ import {
 import {useFormik} from "formik";
 import * as Yup from "yup";
 import {ISectionRecord, ITestRecord, LoggedUser} from "../Api/Backend";
+import {useDispatch, useSelector} from "react-redux";
+import {fetchSections, selectAll, selectError, selectStatus, Status} from "../Redux/Sections";
 
 const Radio: FC<{ label: string } & RadioProps> = ({label, ...props}) => {
     return <FormControlLabel control={<MuiRadio {...props}/>} label={label}/>
@@ -72,18 +73,27 @@ const Form: FC<IForm> = ({sections, onSubmit}) => {
 }
 
 export const SectionForm: FC<ISubmit> = ({onSubmit}) => {
-    const api = useApi();
-    const callback = async () => await api.getSections();
-    const sections = useAsync(callback, []);
-    if (sections.loading) {
+    const dispatch = useDispatch()
+    const sections = useSelector(selectAll);
+    const status = useSelector(selectStatus);
+    const error = useSelector(selectError);
+
+    useEffect(() => {
+        if (status === Status.IDLE) {
+            dispatch(fetchSections())
+        }
+    }, [status, dispatch]);
+
+
+    if (status === Status.LOADING) {
         return <>Loading ...</>;
     }
-    if (sections.error) {
-        return <>Error: {sections.error}</>
+    if (status === Status.FAILED) {
+        return <>Error: {error}</>
     }
-    if (!sections.result || sections.result.length === 0) {
+    if (sections.length === 0) {
         return <>No sections</>
     }
 
-    return <Form sections={sections.result} onSubmit={onSubmit}/>
+    return <Form sections={sections} onSubmit={onSubmit}/>
 }

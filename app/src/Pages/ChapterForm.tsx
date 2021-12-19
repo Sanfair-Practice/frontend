@@ -16,7 +16,7 @@ import {useFormik} from "formik";
 import * as Yup from "yup";
 import {IChapterRecord, ITestRecord, LoggedUser} from "../Api/Backend";
 import {useDispatch, useSelector} from "react-redux";
-import {chapterSliceError, chapterSliceStatus, fetchChapters, selectAllChapters, Status} from "../Redux/Chapters";
+import {selectError, fetchChapters, selectAll, Status, selectStatus} from "../Redux/Chapters";
 
 const Radio: FC<{ label: string } & RadioProps> = ({label, ...props}) => {
     return <FormControlLabel control={<MuiRadio {...props}/>} label={label}/>
@@ -28,10 +28,9 @@ interface ISubmit {
 
 interface IForm extends ISubmit {
     chapters: Array<IChapterRecord>,
-    onReload: () => void
 }
 
-const Form: FC<IForm> = ({chapters, onSubmit, onReload}) => {
+const Form: FC<IForm> = ({chapters, onSubmit}) => {
     const api = useApi();
     const {user} = useUser();
     const formik = useFormik<{ chapter: string }>({
@@ -68,9 +67,6 @@ const Form: FC<IForm> = ({chapters, onSubmit, onReload}) => {
                 <Button color="primary" fullWidth size="large" type="submit" variant="contained">
                     Submit
                 </Button>
-                <Button color="primary" fullWidth size="large" variant="contained" onClick={onReload}>
-                    Reload
-                </Button>
             </Box>
         </form>
     )
@@ -78,19 +74,15 @@ const Form: FC<IForm> = ({chapters, onSubmit, onReload}) => {
 
 export const ChapterForm: FC<ISubmit> = ({onSubmit}) => {
     const dispatch = useDispatch()
-    const chapters = useSelector(selectAllChapters);
-    const status = useSelector(chapterSliceStatus)
-    const error = useSelector(chapterSliceError)
+    const chapters = useSelector(selectAll);
+    const status = useSelector(selectStatus)
+    const error = useSelector(selectError)
 
     useEffect(() => {
         if (status === Status.IDLE) {
             dispatch(fetchChapters())
         }
     }, [status, dispatch]);
-
-    const handleReload = () => {
-        dispatch(fetchChapters());
-    }
 
     if (status === Status.LOADING) {
         return <>Loading ...</>;
@@ -102,5 +94,5 @@ export const ChapterForm: FC<ISubmit> = ({onSubmit}) => {
         return <>No chapters</>
     }
 
-    return <Form chapters={chapters} onSubmit={onSubmit} onReload={handleReload}/>
+    return <Form chapters={chapters} onSubmit={onSubmit}/>
 }
