@@ -1,5 +1,5 @@
 import React, {FC, useEffect} from "react";
-import {useApi, useUser} from "../Contexts";
+import {AppDispatch, useUser} from "../Contexts";
 import {
     Box,
     Button,
@@ -17,6 +17,7 @@ import * as Yup from "yup";
 import {IChapterRecord, ITestRecord, LoggedUser} from "../Api/Backend";
 import {useDispatch, useSelector} from "react-redux";
 import {selectError, fetchChapters, selectAll, Status, selectStatus} from "../Redux/Chapters";
+import {createForChapters} from "../Redux/Trainings";
 
 const Radio: FC<{ label: string } & RadioProps> = ({label, ...props}) => {
     return <FormControlLabel control={<MuiRadio {...props}/>} label={label}/>
@@ -31,8 +32,8 @@ interface IForm extends ISubmit {
 }
 
 const Form: FC<IForm> = ({chapters, onSubmit}) => {
-    const api = useApi();
     const {user} = useUser();
+    const dispatch = useDispatch<AppDispatch>();
     const formik = useFormik<{ chapter: string }>({
         initialValues: {
             chapter: "",
@@ -41,7 +42,10 @@ const Form: FC<IForm> = ({chapters, onSubmit}) => {
             chapter: Yup.string().required(),
         }),
         onSubmit: async (values) => {
-            const record = await api.createTrainingForChapters((user as LoggedUser).id, [values.chapter]);
+            const record = await dispatch(createForChapters({
+                user: (user as LoggedUser).id,
+                data: [values.chapter],
+            })).unwrap();
             onSubmit(record);
         }
     });

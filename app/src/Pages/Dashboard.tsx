@@ -1,4 +1,4 @@
-import React, {FC, useState} from "react";
+import React, {FC, useEffect} from "react";
 import Moment from "react-moment";
 import {
     Button,
@@ -13,8 +13,7 @@ import {
     TableHead,
     TableRow
 } from "@mui/material";
-import {useAsync} from "react-async-hook";
-import {useApi, useUser} from "../Contexts";
+import {useUser} from "../Contexts";
 import {ITestRecord, LoggedUser, TestStatus} from "../Api/Backend";
 import {SectionForm} from "./SectionForm";
 import {ChapterForm} from "./ChapterForm";
@@ -22,6 +21,8 @@ import {CustomForm} from "./CustomForm";
 import {useNavigate} from "react-router-dom";
 import {Router} from "../Helpers"
 import {Modal} from "../Components/Modal"
+import {useDispatch, useSelector} from "react-redux";
+import {fetchTrainings, selectAll, selectError, selectStatus, Status} from "../Redux/Trainings";
 
 const getAction = (training: ITestRecord): string => {
     switch (training.status) {
@@ -52,22 +53,28 @@ const Training: FC<{ training: ITestRecord }> = ({training}) => {
     )
 }
 
-const Trainings: FC<{ update: string }> = ({update}) => {
-    const api = useApi();
+const Trainings: FC = () => {
     const {user} = useUser();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const callback = async (id: number, update: string) => await api.getTrainings(id);
-    const trainings = useAsync(callback, [(user as LoggedUser).id, update]);
+    const dispatch = useDispatch()
+    const trainings = useSelector(selectAll);
+    const status = useSelector(selectStatus);
+    const error = useSelector(selectError);
+
+    useEffect(() => {
+        if (status === Status.IDLE) {
+            dispatch(fetchTrainings((user as LoggedUser).id))
+        }
+    }, [status, dispatch, user]);
 
     let content;
-    if (trainings.loading) {
+    if (status === Status.LOADING) {
         content = <TableRow><TableCell colSpan={4}>Loading...</TableCell></TableRow>;
-    } else if (trainings.error) {
-        content = <TableRow><TableCell colSpan={4}>{trainings.error.message}</TableCell></TableRow>;
-    } else if (trainings.result && trainings.result.length === 0) {
+    } else if (status === Status.FAILED) {
+        content = <TableRow><TableCell colSpan={4}>{error}</TableCell></TableRow>;
+    } else if (status === Status.SUCCEEDED && trainings.length === 0) {
         content = <TableRow><TableCell colSpan={4}>No results.</TableCell></TableRow>;
-    } else if (trainings.result) {
-        content = <>{trainings.result.map((record) => <Training key={record.id} training={record}/>)}</>
+    } else if (status === Status.SUCCEEDED) {
+        content = <>{trainings.map((record) => <Training key={record.id} training={record}/>)}</>
     }
 
     return (
@@ -90,12 +97,13 @@ const Trainings: FC<{ update: string }> = ({update}) => {
     );
 }
 
-const Menu: FC<{ setUpdate: React.Dispatch<string> }> = ({setUpdate}) => {
+const Menu: FC = () => {
+    const navigate = useNavigate();
     const [form, setForm] = React.useState<React.ReactElement>();
     const clear = () => setForm(undefined);
     const onSubmit = (record: ITestRecord) => {
-        clear()
-        setUpdate(String(record.id));
+        clear();
+        navigate(Router.linkTraining(record.id));
     }
     const useSectionForm = () => setForm(React.createElement(SectionForm, {onSubmit}));
     const useChapterForm = () => setForm(React.createElement(ChapterForm, {onSubmit}));
@@ -115,15 +123,14 @@ const Menu: FC<{ setUpdate: React.Dispatch<string> }> = ({setUpdate}) => {
 }
 
 export const Dashboard: FC = () => {
-    const [update, setUpdate] = useState("");
     return (
         <Container>
             <Grid p={2} container columnSpacing={3}>
                 <Grid item xs={3}>
-                    <Menu setUpdate={setUpdate}/>
+                    <Menu/>
                 </Grid>
                 <Grid item xs={9}>
-                    <Trainings update={update}/>
+                    <Trainings/>
                 </Grid>
             </Grid>
         </Container>

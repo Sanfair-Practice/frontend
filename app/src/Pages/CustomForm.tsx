@@ -1,6 +1,5 @@
 import React, {FC, useEffect} from "react";
-import {useApi, useUser} from "../Contexts";
-import {useAsync} from "react-async-hook";
+import {AppDispatch, useUser} from "../Contexts";
 import {
     Box,
     Button,
@@ -19,6 +18,7 @@ import {ISectionRecord, ITestRecord, LoggedUser} from "../Api/Backend";
 import {useDispatch, useSelector} from "react-redux";
 import {selectAll, selectError, selectStatus} from "../Redux/Sections";
 import {fetchChapters, Status} from "../Redux/Chapters";
+import {createForSections} from "../Redux/Trainings";
 
 const Checkbox: FC<{ label: string } & CheckboxProps> = ({label, ...props}) => {
     return <FormControlLabel control={<MuiCheckbox {...props}/>} label={label}/>
@@ -33,8 +33,8 @@ interface IForm extends ISubmit {
 }
 
 const Form: FC<IForm> = ({sections, onSubmit}) => {
-    const api = useApi();
     const {user} = useUser();
+    const dispatch = useDispatch<AppDispatch>();
     const formik = useFormik<{ sections: Array<string> }>({
         initialValues: {
             sections: [],
@@ -43,7 +43,10 @@ const Form: FC<IForm> = ({sections, onSubmit}) => {
             sections: Yup.array().min(1),
         }),
         onSubmit: async (values) => {
-            const record = await api.createTrainingForSections((user as LoggedUser).id, values.sections);
+            const record = await dispatch(createForSections({
+                user: (user as LoggedUser).id,
+                data: values.sections,
+            })).unwrap();
             onSubmit(record);
         }
     });

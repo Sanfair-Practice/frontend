@@ -1,5 +1,5 @@
 import React, {FC, useEffect} from "react";
-import {useApi, useUser} from "../Contexts";
+import {AppDispatch, useUser} from "../Contexts";
 import {
     Box,
     Button,
@@ -17,6 +17,7 @@ import * as Yup from "yup";
 import {ISectionRecord, ITestRecord, LoggedUser} from "../Api/Backend";
 import {useDispatch, useSelector} from "react-redux";
 import {fetchSections, selectAll, selectError, selectStatus, Status} from "../Redux/Sections";
+import {createForSections} from "../Redux/Trainings";
 
 const Radio: FC<{ label: string } & RadioProps> = ({label, ...props}) => {
     return <FormControlLabel control={<MuiRadio {...props}/>} label={label}/>
@@ -31,8 +32,8 @@ interface IForm extends ISubmit {
 }
 
 const Form: FC<IForm> = ({sections, onSubmit}) => {
-    const api = useApi();
     const {user} = useUser();
+    const dispatch = useDispatch<AppDispatch>();
     const formik = useFormik<{ section: string }>({
         initialValues: {
             section: "",
@@ -41,7 +42,10 @@ const Form: FC<IForm> = ({sections, onSubmit}) => {
             section: Yup.string().required(),
         }),
         onSubmit: async (values) => {
-            const record = await api.createTrainingForSections((user as LoggedUser).id, [values.section]);
+            const record = await dispatch(createForSections({
+                user: (user as LoggedUser).id,
+                data: [values.section],
+            })).unwrap();
             onSubmit(record);
         }
     });
