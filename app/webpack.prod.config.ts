@@ -22,6 +22,9 @@ const config: Configuration = {
         use: {
           loader: "babel-loader",
           options: {
+            plugins: [
+              "babel-plugin-typescript-to-proptypes"
+            ],
             presets: [
               "@babel/preset-env",
               "@babel/preset-react",
