@@ -15,3 +15,5 @@ export const ApiProvider: FC = ({ children}) => {
     )
 };
 
+export default api;
+

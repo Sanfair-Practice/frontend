@@ -1,6 +1,5 @@
 import React, {FC, useCallback, useState} from "react";
-import {useApi} from "./Api";
-import {IAuthenticatable, LoggedUser} from "../Api/Backend";
+import {Api, IAuthenticatable, LoggedUser} from "../Api/Backend";
 import {ModalLoader} from "../Components/Loader";
 import {Typography} from "@mui/material";
 
@@ -19,10 +18,13 @@ const UserContext = React.createContext<IUserContextType>({
 
 export const useUser = (): IUserContextType => React.useContext(UserContext);
 
-export const UserProvider: FC = ({children}) => {
+interface UserProviderProps {
+    api: Api,
+}
+
+export const UserProvider: FC<UserProviderProps> = ({api, children}) => {
     const [user, setUser] = useState<LoggedUser | undefined>();
     const [loading, setLoading] = useState(() => !!localStorage.getItem("user"));
-    const api = useApi();
 
     const saveUser = useCallback((user: LoggedUser | undefined) => {
         if (user) {
